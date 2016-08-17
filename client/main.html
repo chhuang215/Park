@@ -1,0 +1,29 @@
+<head>
+  <title>simple</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+</body>
+
+<template name="layout">
+
+  {{> Template.dynamic template=main data=data}}
+</template>
+
+<!-- <template name="mainNav">
+
+
+</template> -->
+
+<template name="main">
+  <!-- <div class="mainUI"> -->
+    <button class="btn btn-primary btnSearch" type="button" name="btnSearch">Search</button>
+    <button class="btn btn-primary btnSetting" type="button" name="btnSetting">Setting</button>
+    <button class="btn btn-primary btnList" type="button" name="btnList">List</button>
+    <button class="btn btn-primary btn2d3d" type="button" name="btn2d3d">2D/3D</button>
+    {{> parkMap}}
+  <!-- </div> -->
+</template>
