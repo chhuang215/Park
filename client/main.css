@@ -25,3 +25,9 @@
   left: 1em;
   bottom: 1em;
 }
+
+.btnCurr{
+  position: fixed;
+  right: 1em;
+  top: 1em;
+}
