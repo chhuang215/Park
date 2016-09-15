@@ -42,8 +42,31 @@ Template.parkMap.helpers({
 
 Template.parkMap.events({
   'click .btnNavTo'(event) {
-    console.log(event.currentTarget.id);
+    //console.log();
 
+    var map = GoogleMaps.maps.parkMap.instance;
+    let fromLocation = Geolocation.latLng();
+    let toLocation = parkingSpot[event.currentTarget.id].position;
+
+
+    var directionsService = new google.maps.DirectionsService();
+    var directionsDisplay = new google.maps.DirectionsRenderer();
+    directionsDisplay.setMap(map);
+    let request = {
+      origin: fromLocation,
+      destination: toLocation,
+      travelMode: 'DRIVING',
+      drivingOptions: {
+        departureTime: new Date(Date.now()),
+        trafficModel: 'optimistic',
+      },
+      provideRouteAlternatives: true
+    }
+    directionsService.route(request, function(result, status) {
+      if (status == 'OK') {
+        directionsDisplay.setDirections(result);
+      }
+    });
   },
 });
 
@@ -55,29 +78,20 @@ var openedInfoWindow = null;
 
 Template.parkMap.onCreated(function (){
   var self = this;
+
   GoogleMaps.ready('parkMap', function(map) {
+
    // TEST: Add a marker to the map once it's ready
-
-
 
    // Put the markers on
    for (var i = 0; i < parkingSpot.length; i++) {
 
-
+     let contentInfo = '<div id=p'+i+'><p>'+ parkingSpot[i].info +'</p> <br /> <button class="btn btn-warning btnNavTo" id="'+i+'">Click here to fking navigate</button></div>';
      var locationInfoWindow = new google.maps.InfoWindow({
-        content: '<div id=p'+i+'><p>'+ parkingSpot[i].info +'</p> <br /> <button class="btn btn-warning btnNavTo" id="'+i+'">Click here to fking navigate</button></div>'
+        content: contentInfo
       });
-      // Add event listener for infowindow
-      // google.maps.event.addListener(locationInfoWindow, 'domready', function() {
-      //     console.log("LISTENER: " + "btnNavTo"+i) ;
-      //     document.getElementById("btnNavTo"+i).addListener("click", function(e) {
-      //       //  e.stop();
-      //         console.log("hi! " + i);
-      //     });
-      // });
 
-
-      // Initialize new marker
+      // Initialize new markers
      var marker = new google.maps.Marker({
        position: parkingSpot[i].position,
        map: map.instance,
@@ -109,18 +123,24 @@ Template.parkMap.onCreated(function (){
        currMarker = new google.maps.Marker({
          position: new google.maps.LatLng(latLng.lat, latLng.lng),
          map: map.instance,
-         label: "Yo"
+         label: "U"
        });
      }
      else {
         currMarker.setPosition(latLng);
+        var circle = new google.maps.Circle({
+          map: map.instance,
+          radius: 1000,    // 10 miles in metres
+          fillColor: '#AA0000'
+        });
+        circle.bindTo('center', currMarker);
     }
     // var centerControlDiv = document.createElement('div');
     // var centerControl = new CenterControl(centerControlDiv, map, chicago);
 
     // Center and zoom the map view onto the current position.
      map.instance.setCenter(currMarker.getPosition());
-     map.instance.setZoom(8);
+     map.instance.setZoom(12);
    });
   });
 });
