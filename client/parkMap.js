@@ -110,10 +110,19 @@ Template.parkMap.onCreated(function (){
     });
    }
 
-   var currMarker;
+  // Create circle area
+   var circle = new google.maps.Circle({
+     map: map.instance,
+     radius: 1000,    // 1 km default
+     strokeWeight: .5,
+     fillColor: '#7BB2CA',
+     fillOpacity: 0.2,
+   //  center: currMarker.position
+   });
 
    // Create and move the marker when latLng changes.
    self.autorun(function() {
+     let currMarker;
      // Get current lat lng
      var latLng = Geolocation.latLng();
      if (! latLng) return;
@@ -128,13 +137,11 @@ Template.parkMap.onCreated(function (){
      }
      else {
         currMarker.setPosition(latLng);
-        var circle = new google.maps.Circle({
-          map: map.instance,
-          radius: 1000,    // 10 miles in metres
-          fillColor: '#AA0000'
-        });
-        circle.bindTo('center', currMarker);
     }
+
+    // Display radius
+    circle.bindTo('center', currMarker, 'position');
+
     // var centerControlDiv = document.createElement('div');
     // var centerControl = new CenterControl(centerControlDiv, map, chicago);
 

@@ -1,7 +1,7 @@
 import { Template } from 'meteor/templating';
 
-import { GoogleMaps } from 'meteor/dburles:google-maps';
-
+//import { GoogleMaps } from 'meteor/dburles:google-maps';
+import {Weather} from 'meteor/selaias:meteor-simpleweather';
 import './main.html';
 
 // Template.hello.onCreated(function helloOnCreated() {
@@ -32,6 +32,24 @@ import './main.html';
 //  });
 // });
 //
-// Template.main.onRendered(function() {
-//   GoogleMaps.load({key: 'AIzaSyCd-5haHDEEa8HjyaRaLq8aczxuwkP5ZMs'});
-// });
+Template.main.onRendered(function() {
+
+  var options = {
+    location: "Calgary, Alberta",
+    unit: 'c',
+    success: function(weather) {
+      html = '<h4><i class="sw icon-'+weather.code+'"></i> '
+      html += weather.temp+'&deg;'+weather.units.temp+'</h4>';
+      html += '<ul><li>'+weather.city+', '+weather.region +'</li>';
+      //html += '<li class="currently">'+weather.currently+'</li>';
+
+      $("#weather").html(html);
+    },
+    error: function(error) {
+      $("#weather").html('<p>'+error+'</p>');
+    }
+  }
+
+  Weather.options = options;
+  Weather.load();
+});
