@@ -32,6 +32,26 @@
   top: 1em;
 }
 
-/*#weather{
-  height:80px;
-}*/
+#weather{
+  margin:0;
+  background: none;
+  position: fixed;
+  right: 1.5em;
+  top: 1em;
+  width:150px;
+}
+
+#weather ul, #weather li{
+  margin:0;
+  background: none;
+}
+
+#weather i.sw {
+
+    /*color: #000;*/
+    /*font-family: weather;*/
+    font-size: 50px;
+    /*font-weight: normal;
+    font-style: normal;
+    line-height: 1.0;*/
+}

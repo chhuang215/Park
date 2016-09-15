@@ -3,12 +3,13 @@ import { Template } from 'meteor/templating';
 import { GoogleMaps } from 'meteor/dburles:google-maps';
 import {Geolocation} from 'meteor/mdg:geolocation';
 import { Session } from 'meteor/session';
+import { ParkingSpot } from '/lib/collections/ParkingSpot.js';
 import './parkMap.html';
 
 var parkingSpot = [
     // Test Marker: Northland Walmart parking
-    {position:{lat:51.0982289, lng:-114.1450605}, info:"Hello fker, This is ghetto Walmart."},
-    {position:{lat:51.13661, lng:-114.160626}, info:"You sick fk, This is poor people SuperStore."}
+    // {position:{lat:51.0982289, lng:-114.1450605}, info:"Hello fker, This is ghetto Walmart."},
+    // {position:{lat:51.13661, lng:-114.160626}, info:"You sick fk, This is poor people SuperStore."}
 //    {lat:51.0440916, lng:-114.1900152},
 //    {lat:51.1254236, lng:-114.1563701},
 //    {lat:51.0913963, lng:-114.0479861},
@@ -44,9 +45,11 @@ Template.parkMap.events({
   'click .btnNavTo'(event) {
     //console.log();
 
+    let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
+
     var map = GoogleMaps.maps.parkMap.instance;
     let fromLocation = Geolocation.latLng();
-    let toLocation = parkingSpot[event.currentTarget.id].position;
+    let toLocation = spot.position;
 
 
     var directionsService = new google.maps.DirectionsService();
@@ -80,13 +83,15 @@ Template.parkMap.onCreated(function (){
   var self = this;
 
   GoogleMaps.ready('parkMap', function(map) {
+    let parkingSpot = ParkingSpot.find().fetch();
+    console.log(parkingSpot);
 
    // TEST: Add a marker to the map once it's ready
 
    // Put the markers on
    for (var i = 0; i < parkingSpot.length; i++) {
 
-     let contentInfo = '<div id=p'+i+'><p>'+ parkingSpot[i].info +'</p> <br /> <button class="btn btn-warning btnNavTo" id="'+i+'">Click here to fking navigate</button></div>';
+     let contentInfo = '<div id=p'+i+'><p>'+ parkingSpot[i].info +'</p> <br /> <button class="btn btn-warning btnNavTo" id="'+parkingSpot[i]._id+'">Click here to fking navigate</button></div>';
      var locationInfoWindow = new google.maps.InfoWindow({
         content: contentInfo
       });

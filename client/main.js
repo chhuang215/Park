@@ -38,8 +38,8 @@ Template.main.onRendered(function() {
     location: "Calgary, Alberta",
     unit: 'c',
     success: function(weather) {
-      html = '<h4><i class="sw icon-'+weather.code+'"></i> '
-      html += weather.temp+'&deg;'+weather.units.temp+'</h4>';
+      html = '<h3><i class="sw icon-'+weather.code+'"></i> '
+      html += weather.temp+'&deg;'+weather.units.temp+'</h3>';
       html += '<ul><li>'+weather.city+', '+weather.region +'</li>';
       //html += '<li class="currently">'+weather.currently+'</li>';
 
