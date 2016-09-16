@@ -6,14 +6,10 @@ import { Session } from 'meteor/session';
 import { ParkingSpot } from '/lib/collections/ParkingSpot.js';
 import './parkMap.html';
 
-var parkingSpot = [
-    // Test Marker: Northland Walmart parking
-    // {position:{lat:51.0982289, lng:-114.1450605}, info:"Hello fker, This is ghetto Walmart."},
-    // {position:{lat:51.13661, lng:-114.160626}, info:"You sick fk, This is poor people SuperStore."}
-//    {lat:51.0440916, lng:-114.1900152},
-//    {lat:51.1254236, lng:-114.1563701},
-//    {lat:51.0913963, lng:-114.0479861},
-];
+var openedInfoWindow = null;
+var currentDestinationMarker = null;
+var mouseup = false;
+var drag = false;
 
 Template.parkMap.helpers({
   mapOptions() {
@@ -42,9 +38,9 @@ Template.parkMap.helpers({
 });
 
 Template.parkMap.events({
-  'click .btnNavTo'(event) {
+  'click .btnNavToParkingSpot'(event) {
     //console.log();
-
+    if(openedInfoWindow) openedInfoWindow.close();
     let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
 
     var map = GoogleMaps.maps.parkMap.instance;
@@ -71,27 +67,59 @@ Template.parkMap.events({
       }
     });
   },
+
+  'click .btnNavToDestination'(event){
+
+  },
+
+
 });
 
 Template.parkMap.onRendered(function(){
 
 });
 
-var openedInfoWindow = null;
-
 Template.parkMap.onCreated(function (){
   var self = this;
 
   GoogleMaps.ready('parkMap', function(map) {
-    let parkingSpot = ParkingSpot.find().fetch();
-    console.log(parkingSpot);
 
-   // TEST: Add a marker to the map once it's ready
+    map.instance.addListener('click', function(e) {
+      if(openedInfoWindow) openedInfoWindow.close();
+    });
+
+    // map.instance.addListener('rightclick', function(e) {
+    //   setNewDestination(map, e.latLng);
+    // });
+
+    map.instance.addListener('mousedown', function(e) {
+      mousedUp = false;
+      setTimeout(function(){
+          if(mousedUp === false && !drag){
+            setNewDestination(map, e.latLng);
+          }
+      }, 500);
+
+    });
+
+    map.instance.addListener('mouseup', function(event){
+      mousedUp = true;
+      drag = false;
+    });
+
+    map.instance.addListener('drag', function(event){
+      drag = true;
+    });
+
+    map.instance.addListener('dragend', function(event){
+      drag = false;
+    });
 
    // Put the markers on
+   let parkingSpot = ParkingSpot.find().fetch();
    for (var i = 0; i < parkingSpot.length; i++) {
 
-     let contentInfo = '<div id=p'+i+'><p>'+ parkingSpot[i].info +'</p> <br /> <button class="btn btn-warning btnNavTo" id="'+parkingSpot[i]._id+'">Click here to fking navigate</button></div>';
+     let contentInfo = '<div id=p'+i+'><p>'+ parkingSpot[i].info +'</p> <br /> <button class="btn btn-warning btnNavToParkingSpot" id="'+parkingSpot[i]._id+'">Click here to fking navigate</button></div>';
      var locationInfoWindow = new google.maps.InfoWindow({
         content: contentInfo
       });
@@ -106,30 +134,26 @@ Template.parkMap.onCreated(function (){
 
     google.maps.event.addListener(marker, 'click', function () {
         // Close any existing infowindow
+        if(!currentDestinationMarker){
+          if(openedInfoWindow) openedInfoWindow.close();
 
-        if(openedInfoWindow) openedInfoWindow.close();
-
-        // Open infowindow when marker is clicked
-        openedInfoWindow = this.infowindow;
-        this.infowindow.open(map, this);
+          // Open infowindow when marker is clicked
+          openedInfoWindow = this.infowindow;
+          this.infowindow.open(map, this);
+        }
     });
    }
 
-  // Create circle area
-   var circle = new google.maps.Circle({
-     map: map.instance,
-     radius: 1000,    // 1 km default
-     strokeWeight: .5,
-     fillColor: '#7BB2CA',
-     fillOpacity: 0.2,
-   //  center: currMarker.position
-   });
+  let currMarker = null;
 
-   // Create and move the marker when latLng changes.
-   self.autorun(function() {
-     let currMarker;
-     // Get current lat lng
-     var latLng = Geolocation.latLng();
+  let latLng = null;
+
+  circle = getCircle(map.instance, 500);
+
+  // Create and move the marker when latLng changes.
+  self.autorun(function() {
+    // Get current lat lng
+     latLng = Geolocation.latLng();
      if (! latLng) return;
 
      // Mark current location
@@ -139,10 +163,12 @@ Template.parkMap.onCreated(function (){
          map: map.instance,
          label: "U"
        });
+       map.instance.setCenter(currMarker.getPosition());
+       map.instance.setZoom(11);
      }
      else {
-        currMarker.setPosition(latLng);
-    }
+       currMarker.setPosition(latLng);
+     }
 
     // Display radius
     circle.bindTo('center', currMarker, 'position');
@@ -151,8 +177,7 @@ Template.parkMap.onCreated(function (){
     // var centerControl = new CenterControl(centerControlDiv, map, chicago);
 
     // Center and zoom the map view onto the current position.
-     map.instance.setCenter(currMarker.getPosition());
-     map.instance.setZoom(12);
+
    });
   });
 });
@@ -161,3 +186,64 @@ Template.parkMap.onRendered(function() {
   // Load api
   GoogleMaps.load({key: 'AIzaSyCd-5haHDEEa8HjyaRaLq8aczxuwkP5ZMs'});
 });
+
+function getCircle(map,radius){
+  if(!radius) radius = 500;
+  let circle = new google.maps.Circle({
+    map: map,
+    radius: radius,    // 500 km default
+    strokeWeight: .5,
+    fillColor: '#7BB2CA',
+    fillOpacity: 0.2,
+  //  center: currMarker.position
+  });;
+  return circle;
+}
+
+function setNewDestination(map, latLng){
+  if(currentDestinationMarker){
+    currentDestinationMarker.setPosition(latLng);;
+  }
+  else{
+
+    let contentInfo = '<div> <button class="btn btn-warning btnNavToDestination">Click here to fking navigate</button></div>';
+
+    let destinationInfoWindow = new google.maps.InfoWindow({
+       content: contentInfo
+    });
+
+    currentDestinationMarker = new google.maps.Marker({
+      position:latLng,
+      draggable: true,
+      label: 'D',
+      map: map.instance,
+      infowindow: destinationInfoWindow
+    });
+
+    google.maps.event.addListener(currentDestinationMarker, 'click', function () {
+        // Close any existing infowindow
+
+        if(openedInfoWindow) openedInfoWindow.close();
+
+          // Open infowindow when marker is clicked
+        openedInfoWindow = this.infowindow;
+        this.infowindow.open(map, this);
+
+    });
+
+    google.maps.event.addListener(currentDestinationMarker,'mousedown', function(e) {
+      mousedUp = false;
+      setTimeout(function(){
+          if(mousedUp === false){
+            currentDestinationMarker.setMap(null);
+            currentDestinationMarker=null;
+          }
+      }, 500);
+
+    });
+
+    google.maps.event.addListener(currentDestinationMarker,'mouseup', function(event){
+      mousedUp = true;
+    });
+  }
+}
