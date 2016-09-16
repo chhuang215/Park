@@ -34,22 +34,25 @@ import './main.html';
 //
 Template.main.onRendered(function() {
 
-  var options = {
-    location: "Calgary, Alberta",
-    unit: 'c',
-    success: function(weather) {
-      html = '<h3><i class="sw icon-'+weather.code+'"></i> '
-      html += weather.temp+'&deg;'+weather.units.temp+'</h3>';
-      html += '<ul><li>'+weather.city+', '+weather.region +'</li>';
-      //html += '<li class="currently">'+weather.currently+'</li>';
+  this.autorun(function(){
+    var options = {
+      location: "Calgary, Alberta",
+      unit: 'c',
+      success: function(weather) {
+        html = '<i class="sw icon-'+weather.code+'"></i> '
+        html += ''+weather.temp+'&deg;'+weather.units.temp+'';
+        // html += '<ul><li>'+weather.city+', '+weather.region +'</li>';
+        //html += '<li class="currently">'+weather.currently+'</li>';
 
-      $("#weather").html(html);
-    },
-    error: function(error) {
-      $("#weather").html('<p>'+error+'</p>');
+        $("#weather").html(html);
+      },
+      error: function(error) {
+        $("#weather").html('<p>'+error+'</p>');
+      }
     }
-  }
 
-  Weather.options = options;
-  Weather.load();
+    Weather.options = options;
+    Weather.load();
+  });
+
 });
