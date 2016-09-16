@@ -75,11 +75,10 @@ Template.parkMap.events({
 
 });
 
-Template.parkMap.onRendered(function(){
-
-});
-
 Template.parkMap.onCreated(function (){
+  // Load api
+  GoogleMaps.load({key: 'AIzaSyCd-5haHDEEa8HjyaRaLq8aczxuwkP5ZMs'});
+
   var self = this;
 
   GoogleMaps.ready('parkMap', function(map) {
@@ -163,6 +162,8 @@ Template.parkMap.onCreated(function (){
          map: map.instance,
          label: "U"
        });
+
+       // Center and zoom the map view onto the current position.
        map.instance.setCenter(currMarker.getPosition());
        map.instance.setZoom(11);
      }
@@ -175,16 +176,12 @@ Template.parkMap.onCreated(function (){
 
     // var centerControlDiv = document.createElement('div');
     // var centerControl = new CenterControl(centerControlDiv, map, chicago);
-
-    // Center and zoom the map view onto the current position.
-
    });
   });
 });
 
 Template.parkMap.onRendered(function() {
-  // Load api
-  GoogleMaps.load({key: 'AIzaSyCd-5haHDEEa8HjyaRaLq8aczxuwkP5ZMs'});
+
 });
 
 function getCircle(map,radius){
