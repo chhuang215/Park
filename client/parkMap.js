@@ -163,7 +163,7 @@ Template.parkMap.onCreated(function (){
 
        // Center and zoom the map view onto the current position.
        map.instance.setCenter(currMarker.getPosition());
-       map.instance.setZoom(11);
+       map.instance.setZoom(9);
      }
      else {
        currMarker.setPosition(latLng);
