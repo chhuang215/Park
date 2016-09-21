@@ -83,6 +83,7 @@ Template.parkMap.onCreated(function (){
 
   GoogleMaps.ready('parkMap', function(map) {
 
+    // Close any window if user click on anywhere on the map
     map.instance.addListener('click', function(e) {
       if(openedInfoWindow) openedInfoWindow.close();
     });
@@ -93,6 +94,7 @@ Template.parkMap.onCreated(function (){
 
     map.instance.addListener('mousedown', function(e) {
       mousedUp = false;
+      // If the user long press a location, adds a new marker as new destination
       setTimeout(function(){
           if(mousedUp === false && !drag){
             setNewDestination(map, e.latLng);
@@ -114,7 +116,7 @@ Template.parkMap.onCreated(function (){
       drag = false;
     });
 
-   // Put the markers on
+   // Put the markers on parking spots
    let parkingSpot = ParkingSpot.find().fetch();
    for (var i = 0; i < parkingSpot.length; i++) {
 
@@ -162,14 +164,15 @@ Template.parkMap.onCreated(function (){
        });
 
        // Center and zoom the map view onto the current position.
+      map.instance.setZoom(14);
        map.instance.setCenter(currMarker.getPosition());
-       map.instance.setZoom(14);
+
      }
      else {
        currMarker.setPosition(latLng);
      }
 
-    // Display radius
+    // Display radius if the radius if there is no destination set
     if(!currentDestinationMarker)
       radiusCircle.bindTo('center', currMarker, 'position');
 
@@ -201,6 +204,9 @@ function createCircleRadius(map, radius = 500, color = '#7BB2CA'){
   return circle;
 }
 
+/**
+ * Add marker on the map to set a new destination
+ */
 function setNewDestination(map, latLng){
   if(currentDestinationMarker){
     currentDestinationMarker.setPosition(latLng);;
@@ -240,7 +246,7 @@ function setNewDestination(map, latLng){
     google.maps.event.addListener(currentDestinationMarker,'mousedown', function(e) {
       mousedUp = false;
       setTimeout(function(){
-          if(mousedUp === false){
+          if(mousedUp === false && !drag){
             currentDestinationMarker.setMap(null);
             currentDestinationMarker=null;
             radiusCircle.bindTo('center', currMarker, 'position');
@@ -251,6 +257,15 @@ function setNewDestination(map, latLng){
 
     google.maps.event.addListener(currentDestinationMarker,'mouseup', function(event){
       mousedUp = true;
+      drag = false;
+    });
+
+    google.maps.event.addListener(currentDestinationMarker,'drag', function(event){
+      drag = true;
+    });
+
+    google.maps.event.addListener(currentDestinationMarker,'dragend', function(event){
+      drag = false;
     });
   }
 }
