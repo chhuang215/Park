@@ -145,7 +145,7 @@ Template.parkMap.onCreated(function (){
 
   let latLng = null;
 
-  radiusCircle = getCircle(map.instance, 500);
+  radiusCircle = createCircleRadius(map.instance, 500);
 
   // Create and move the marker when latLng changes.
   self.autorun(function() {
@@ -163,7 +163,7 @@ Template.parkMap.onCreated(function (){
 
        // Center and zoom the map view onto the current position.
        map.instance.setCenter(currMarker.getPosition());
-       map.instance.setZoom(9);
+       map.instance.setZoom(14);
      }
      else {
        currMarker.setPosition(latLng);
@@ -183,11 +183,11 @@ Template.parkMap.onRendered(function() {
 
 });
 
-function getCurrentLocation(){
-
-}
-
-function getCircle(map, radius = 500, color = '#7BB2CA'){
+//---------------FUNCTIONS-----------------//
+/**
+ * Generate a new circle overlay with default radius=500
+ */
+function createCircleRadius(map, radius = 500, color = '#7BB2CA'){
   //if(!radius) radius = 500;
   let circle = new google.maps.Circle({
     map: map,
