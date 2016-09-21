@@ -10,7 +10,8 @@ var openedInfoWindow = null;
 var currentDestinationMarker = null;
 var mouseup = false;
 var drag = false;
-
+var radiusCircle = null;
+var currMarker = null;
 Template.parkMap.helpers({
   mapOptions() {
     // check if maps API has loaded
@@ -43,13 +44,12 @@ Template.parkMap.events({
     if(openedInfoWindow) openedInfoWindow.close();
     let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
 
-    var map = GoogleMaps.maps.parkMap.instance;
+    let map = GoogleMaps.maps.parkMap.instance;
     let fromLocation = Geolocation.latLng();
     let toLocation = spot.position;
 
-
-    var directionsService = new google.maps.DirectionsService();
-    var directionsDisplay = new google.maps.DirectionsRenderer();
+    let directionsService = new google.maps.DirectionsService();
+    let directionsDisplay = new google.maps.DirectionsRenderer();
     directionsDisplay.setMap(map);
     let request = {
       origin: fromLocation,
@@ -143,11 +143,9 @@ Template.parkMap.onCreated(function (){
     });
    }
 
-  let currMarker = null;
-
   let latLng = null;
 
-  circle = getCircle(map.instance, 500);
+  radiusCircle = getCircle(map.instance, 500);
 
   // Create and move the marker when latLng changes.
   self.autorun(function() {
@@ -172,7 +170,8 @@ Template.parkMap.onCreated(function (){
      }
 
     // Display radius
-    circle.bindTo('center', currMarker, 'position');
+    if(!currentDestinationMarker)
+      radiusCircle.bindTo('center', currMarker, 'position');
 
     // var centerControlDiv = document.createElement('div');
     // var centerControl = new CenterControl(centerControlDiv, map, chicago);
@@ -184,14 +183,19 @@ Template.parkMap.onRendered(function() {
 
 });
 
-function getCircle(map,radius){
-  if(!radius) radius = 500;
+function getCurrentLocation(){
+
+}
+
+function getCircle(map, radius = 500, color = '#7BB2CA'){
+  //if(!radius) radius = 500;
   let circle = new google.maps.Circle({
     map: map,
     radius: radius,    // 500 km default
     strokeWeight: .5,
     fillColor: '#7BB2CA',
     fillOpacity: 0.2,
+    clickable: false,
   //  center: currMarker.position
   });;
   return circle;
@@ -217,6 +221,11 @@ function setNewDestination(map, latLng){
       infowindow: destinationInfoWindow
     });
 
+
+    // Display radius
+    radiusCircle.bindTo('center', currentDestinationMarker, 'position');
+    //radiusCircle.setMap(map.instance);
+
     google.maps.event.addListener(currentDestinationMarker, 'click', function () {
         // Close any existing infowindow
 
@@ -234,6 +243,7 @@ function setNewDestination(map, latLng){
           if(mousedUp === false){
             currentDestinationMarker.setMap(null);
             currentDestinationMarker=null;
+            radiusCircle.bindTo('center', currMarker, 'position');
           }
       }, 500);
 
