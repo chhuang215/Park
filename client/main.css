@@ -32,6 +32,32 @@
   bottom: 4em;
 }
 
+#panel_totalDistanceUI{
+  position: fixed;
+  max-width: 420px;
+  width:75%;
+  height:15px;
+  bottom: 3em;
+  left:50%;
+  margin-left: -200px;
+
+}
+
+#line_drive{
+  display:block;
+  float:left;
+  background-color: blue;
+  width:50%;
+  height: 10px;
+}
+
+#line_walk{
+  display:block;
+  float:right;
+  background-color: green;
+  width:50%;
+  height: 10px;
+}
 #weather{
   font-size: 1.5em;
   margin:0;

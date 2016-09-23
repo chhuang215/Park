@@ -6,7 +6,7 @@ import { Session } from 'meteor/session';
 import { ParkingSpot } from '/lib/collections/ParkingSpot.js';
 import './parkMap.html';
 
-const DEFAULT_RADIUS = 500;
+const DEFAULT_RADIUS = 250;
 
 var directionsService = null;
 var directionsDisplayDrive = null;
@@ -350,6 +350,7 @@ function driveToDestination(fromLocation, toLocation){
   directionsService.route(request, function(result, status) {
     if (status == 'OK') {
       directionsDisplayDrive.setDirections(result);
+      console.log("DRIVE");
       console.log(result);
     }
   });
@@ -368,6 +369,8 @@ function walkToDestination(fromLocation, toLocation){
   directionsService.route(request, function(result, status) {
     if (status == 'OK') {
       directionsDisplayWalk.setDirections(result);
+      console.log("WALK");
+      console.log(result);
     }
   });
 }
