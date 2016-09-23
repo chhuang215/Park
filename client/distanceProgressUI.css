@@ -1,0 +1,58 @@
+#distanceProgressUIContainer{
+  position: fixed;
+  pointer-events: none;
+  width:100%;
+  height:15px;
+  bottom: 3em;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+#distanceProgressUI{
+  position: relative;
+  max-width: 430px;
+  width:70%;
+  height: 100%;
+
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+/*#driveMinText{
+  position: absolute;
+  top:-1.2em;
+  left:1px;
+}*/
+
+#line_drive{
+
+  position: absolute;
+  left:0;
+  background-color: blue;
+
+}
+
+/*#walkMinText{
+
+}*/
+#line_walk{
+
+  position: absolute;
+  right:0;
+  background-color: green;
+
+}
+
+.distanceProgressLine{
+  height: 10px;
+  border-radius: 1em;
+}
+
+.distanceTimeText{
+  position: absolute;
+  top:-1.2em;
+  left:1px;
+  font-size: 1.3em;
+}

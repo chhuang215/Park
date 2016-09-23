@@ -1,16 +1,24 @@
 import { Template } from 'meteor/templating';
 
 import { GoogleMaps } from 'meteor/dburles:google-maps';
-import {Geolocation} from 'meteor/mdg:geolocation';
+import { Geolocation } from 'meteor/mdg:geolocation';
 import { Session } from 'meteor/session';
 import { ParkingSpot } from '/lib/collections/ParkingSpot.js';
 import './parkMap.html';
+import './distanceProgressUI.html';
 
 const DEFAULT_RADIUS = 250;
+const DRIVE_ONLY = 1;
+const WALK_ONLY = 2;
+const DRIVE_AND_WALK = 3;
 
 var directionsService = null;
 var directionsDisplayDrive = null;
 var directionsDisplayWalk = null;
+var directionDriveDuration = null;
+var directionWalkDuration = null;
+
+var mode = -1;
 
 var openedInfoWindow = null;
 var currentDestinationMarker = null;
@@ -52,32 +60,14 @@ Template.parkMap.helpers({
 
 Template.parkMap.events({
   'click .btnNavToParkingSpot'(event) {
-
-    if(openedInfoWindow) openedInfoWindow.close();
+    mode = DRIVE_ONLY;
     let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
-
-    let fromLocation = Geolocation.latLng();
-    let toLocation = spot.position;
-
-    driveToDestination(fromLocation,toLocation);
-
+    beginDirection(spot);
   },
   'click .btnNavToSpotAndWalk'(event){
-    if(openedInfoWindow) openedInfoWindow.close();
+    mode = DRIVE_AND_WALK;
     let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
-    let fromLocation = Geolocation.latLng();
-    let toLocation = spot.position;
-
-    driveToDestination(fromLocation,toLocation);
-
-    if(!currentDestinationMarker) return;
-    fromLocation = toLocation;
-
-    toLocation = currentDestinationMarker.getPosition();
-
-
-    walkToDestination(fromLocation,toLocation);
-
+    beginDirection(spot);
   }
 });
 
@@ -88,7 +78,10 @@ Template.parkMap.onCreated(function (){
   var self = this;
 
   GoogleMaps.ready('parkMap', function(map) {
-    //Initialize direction service
+    let mapInstance = map.instance;
+
+
+    //-----------Initialize direction service--------------
     directionsService = new google.maps.DirectionsService();
     directionsDisplayDrive = new google.maps.DirectionsRenderer();
     directionsDisplayDrive.setOptions( { suppressMarkers: true } );
@@ -99,8 +92,11 @@ Template.parkMap.onCreated(function (){
     });
     directionsDisplayWalk.setOptions( { suppressMarkers: true } );
 
-    let mapInstance = map.instance;
 
+    //-----------FINISH Initialize direction service--------------
+
+
+    //-----------Initialize map's listener--------------
     // Close any window if user click on anywhere on the map
     mapInstance.addListener('click', function(e) {
       if(openedInfoWindow) openedInfoWindow.close();
@@ -129,6 +125,7 @@ Template.parkMap.onCreated(function (){
     mapInstance.addListener('dragend', function(event){
       drag = false;
     });
+    //-----------FINISH Initialize map's listener--------------
 
    // Put the markers on parking spots
    let parkingSpot = ParkingSpot.find().fetch();
@@ -164,7 +161,6 @@ Template.parkMap.onCreated(function (){
         this.infowindow.open(map, this);
     });
     allParkingSpots.push(marker);
-    console.log(allParkingSpots);
    }
 
   let latLng = null;
@@ -331,6 +327,16 @@ function findNearSpots(latLng){
   return 0;
 }
 
+function beginDirection(spot){
+  if(openedInfoWindow) openedInfoWindow.close();
+
+
+  let fromLocation = Geolocation.latLng();
+  let toLocation = spot.position;
+  driveToDestination(fromLocation,toLocation);
+}
+
+
 function driveToDestination(fromLocation, toLocation){
 
   let mapInstance = GoogleMaps.maps.parkMap.instance;
@@ -346,12 +352,25 @@ function driveToDestination(fromLocation, toLocation){
       trafficModel: 'optimistic',
     },
     provideRouteAlternatives: true
-  }
+  };
+
   directionsService.route(request, function(result, status) {
     if (status == 'OK') {
       directionsDisplayDrive.setDirections(result);
-      console.log("DRIVE");
-      console.log(result);
+
+      //console.log(result);
+      directionDriveDuration = result.routes[0].legs[0].duration;
+
+      if(mode == DRIVE_AND_WALK){
+        if(!currentDestinationMarker) return;
+        fromLocation = toLocation;
+
+        toLocation = currentDestinationMarker.getPosition();
+
+        walkToDestination(fromLocation,toLocation);
+      }else{
+        displayDistanceProgress();
+      }
     }
   });
 }
@@ -365,17 +384,59 @@ function walkToDestination(fromLocation, toLocation){
     origin: fromLocation,
     destination: toLocation,
     travelMode: 'WALKING',
-  }
+  };
+
   directionsService.route(request, function(result, status) {
     if (status == 'OK') {
       directionsDisplayWalk.setDirections(result);
-      console.log("WALK");
-      console.log(result);
+
+      //console.log(result);
+      directionWalkDuration = result.routes[0].legs[0].duration;
+      if(mode == DRIVE_AND_WALK){
+        displayDistanceProgress();
+      }
     }
   });
+}
+
+function displayDistanceProgress(){
+  let totalDuration, walkPercentage, drivePercentage;
+  let innerhtml = '<div id="distanceProgressUI">';
+
+  if(mode == DRIVE_ONLY) {
+    totalDuration = directionDriveDuration.value;
+    innerhtml += '<div class="distanceProgressLine" id="line_drive" style="width:100%"> <div class="distanceTimeText" id="driveMinText">'+directionDriveDuration.text+'</div> </div>';
+  }else if(mode == DRIVE_AND_WALK){
+    totalDuration = directionDriveDuration.value + directionWalkDuration.value;
+    drivePercentage = (directionDriveDuration.value/totalDuration) * 100;
+    walkPercentage = 100 - drivePercentage;
+
+    if(walkPercentage < 17){
+      walkPercentage = 17;
+      drivePercentage = 83;
+    }
+
+    innerhtml += '<div class="distanceProgressLine" id="line_drive" style="width:'+drivePercentage+'%"> <div class="distanceTimeText" id="driveMinText">'+directionDriveDuration.text+'</div> </div>'+
+    '<div class="distanceProgressLine" id="line_walk" style="width:'+walkPercentage+'%"> <div class="distanceTimeText" id="walkMinText">'+directionWalkDuration.text+'</div> </div>'
+
+  }else{
+    totalDuration = directionWalkDuration.value;
+    innerhtml +='<div class="distanceProgressLine" id="line_walk" style="width:100%"> <div class="distanceTimeText" id="walkMinText">'+directionWalkDuration.text+'</div> </div>'
+  }
+
+  innerhtml += "</div>";
+
+  let disProgressContainer = document.getElementById("distanceProgressUIContainer");
+
+  if(disProgressContainer){
+    disProgressContainer.innerHTML = innerhtml;
+  }
 }
 
 function resetDirectionsDisplay(){
   directionsDisplayDrive.setMap(null);
   directionsDisplayWalk.setMap(null);
+  let disProgress = document.getElementById("distanceProgressUI");
+  if (disProgress) disProgress.remove();
+  mode = -1;
 }

@@ -13,11 +13,6 @@
   {{> Template.dynamic template=main data=data}}
 </template>
 
-<!-- <template name="mainNav">
-
-
-</template> -->
-
 <template name="main">
   <!-- <div class="mainUI"> -->
     <button class="btn btn-primary btnSearch" type="button" name="btnSearch"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
@@ -28,6 +23,6 @@
     <!-- <div class="weatherContainer"></div> -->
     {{>simpleWeather}}
     {{> parkMap}}
-    <div id="panel_totalDistanceUI"><div id="line_drive"></div><div id="line_walk"></div></div>
+    {{>distanceProgressUI}}
   <!-- </div> -->
 </template>
