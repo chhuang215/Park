@@ -158,7 +158,7 @@ Template.parkMap.onCreated(function (){
      // Display radius if the radius if there is no destination set
      if(!currentDestinationMarker)
         radiusCircle.bindTo('center', currentLocationMarker, 'position');
-        
+
    });
    for(var i = 0; i < allParkingSpots.length; i++){
      console.log(allParkingSpots[i]);
