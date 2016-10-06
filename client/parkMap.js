@@ -30,7 +30,7 @@ var mouseup = false;
 var drag = false;
 
 var allParkingSpots = [];
-var visibleMarker = [];
+var currentVisibleSpotMarkers = {};
 
 Template.parkMap.helpers({
   mapOptions() {
@@ -128,40 +128,6 @@ Template.parkMap.onCreated(function (){
     //-----------FINISH Initialize map's listener--------------
 
    // Put the markers on parking spots
-   let parkingSpot = ParkingSpot.find().fetch();
-   for (var i = 0; i < parkingSpot.length; i++) {
-
-     let contentInfo =
-      '<div id=p'+i+'>'+
-        '<p>'+ parkingSpot[i].info +'</p>'+
-        '<br />'+
-        '<button class="btn btn-sm btn-warning btnNavToParkingSpot" id="'+parkingSpot[i]._id+'">Click here to fking navigate</button>' +
-        '<br />'+
-        '<button class="btn btn-sm btn-success btnNavToSpotAndWalk" id="'+parkingSpot[i]._id+'">Click here to park and walk</button>'+
-      '</div>' ;
-     let locationInfoWindow = new google.maps.InfoWindow({
-        content: contentInfo
-      });
-
-      // Initialize new markers
-     let marker = new google.maps.Marker({
-       position: parkingSpot[i].position,
-       label: (i+1).toString(),
-       infowindow: locationInfoWindow,
-       id: parkingSpot[i]._id
-     });
-
-    marker.addListener('click', function () {
-        // Close any existing infowindow
-        if(!currentDestinationMarker){
-          if(openedInfoWindow) openedInfoWindow.close();
-        }
-        // Open infowindow when marker is clicked
-        openedInfoWindow = this.infowindow;
-        this.infowindow.open(map, this);
-    });
-    allParkingSpots.push(marker);
-   }
 
   let latLng = null;
 
@@ -175,16 +141,15 @@ Template.parkMap.onCreated(function (){
 
      // Mark current location
      if (! currentLocationMarker) {
-       currentLocationMarker = new google.maps.Marker({
-         position: new google.maps.LatLng(latLng.lat, latLng.lng),
-         map: map.instance,
-         label: "U"
-       });
+        currentLocationMarker = new google.maps.Marker({
+          position: new google.maps.LatLng(latLng.lat, latLng.lng),
+          map: map.instance,
+          label: "U"
+        });
 
-       // Center and zoom the map view onto the current position.
+      // Center and zoom the map view onto the current position.
       map.instance.setZoom(14);
       map.instance.setCenter(currentLocationMarker.getPosition());
-
      }
      else {
        currentLocationMarker.setPosition(latLng);
@@ -193,12 +158,18 @@ Template.parkMap.onCreated(function (){
      // Display radius if the radius if there is no destination set
      if(!currentDestinationMarker)
         radiusCircle.bindTo('center', currentLocationMarker, 'position');
-
+        
    });
+   for(var i = 0; i < allParkingSpots.length; i++){
+     console.log(allParkingSpots[i]);
+    // AllParkingSpotMarker.insert(allParkingSpots[i]);
+   }
   });
+
 });
 
 Template.parkMap.onRendered(function() {
+
 
 });
 
@@ -281,7 +252,8 @@ function setNewDestination(map, latLng){
  * Find near parking spot with provided center location
  */
 function findNearSpots(latLng){
-  let mapInstance = GoogleMaps.maps.parkMap.instance;
+  let map = GoogleMaps.maps.parkMap;
+  let mapInstance = map.instance;
   let lat = latLng.lat();
   let lng = latLng.lng();
 
@@ -297,32 +269,67 @@ function findNearSpots(latLng){
     }
   }).fetch();
 
-  // Clear visible markers if nearby have no parking spot
+  // Clear visible markers if not at nearby
   if(nearSpots.length === 0){
-     for(var i = 0; i < visibleMarker.length;i++){
-        visibleMarker[i].setMap(null);
-     }
-     visibleMarker = [];
-     return -1;
+  //  CurrentVisibleSpotMarkerId.remove({});
+    for(var i in currentVisibleSpotMarkers){
+      currentVisibleSpotMarkers[i].setMap(null);
+    }
+    currentVisibleSpotMarkers = {};
   }
 
+  let tempVisibleMarker = {};
   // Display near parking spot markers
   for (var i = 0; i < nearSpots.length; i++) {
     let nearSpot = nearSpots[i];
 
-    for(var j = 0; j < allParkingSpots.length;j++){
-      let spot = allParkingSpots[j];
-      // If spot found, display it
-      if(spot.id == nearSpot._id){
-        spot.setMap(mapInstance);
-        visibleMarker.push(spot);
-      }
-      // Else make it invisible if it was visible
-      else {
-        if(spot.map) spot.setMap(null);
-      }
+    let contentInfo =
+     '<div id=p'+i+'>'+
+       '<p>'+ nearSpot.info +'</p>'+
+       '<br />'+
+       '<button class="btn btn-sm btn-warning btnNavToParkingSpot" id="'+nearSpot._id+'">Click here to fking navigate</button>' +
+       '<br />'+
+       '<button class="btn btn-sm btn-success btnNavToSpotAndWalk" id="'+nearSpot._id+'">Click here to park and walk</button>'+
+     '</div>' ;
+     let locationInfoWindow = new google.maps.InfoWindow({
+       content: contentInfo
+     });
+
+     //let existedMarkerId = CurrentVisibleSpotMarkerId.findOne(nearSpot._id);
+     let existedMarker = currentVisibleSpotMarkers[nearSpot._id];
+     if(!existedMarker){
+       // Initialize new markers
+      let marker = new google.maps.Marker({
+        position: nearSpot.position,
+        label: (i+1).toString(),
+        infowindow: locationInfoWindow,
+        id: nearSpot._id
+      });
+      marker.setMap(mapInstance);
+       marker.addListener('click', function () {
+           // Close any existing infowindow
+           if(!currentDestinationMarker){
+             if(openedInfoWindow) openedInfoWindow.close();
+           }
+           // Open infowindow when marker is clicked
+           openedInfoWindow = this.infowindow;
+           this.infowindow.open(map, this);
+       });
+      // CurrentVisibleSpotMarkerId.insert({_id:nearSpot._id});
+       tempVisibleMarker[nearSpot._id] = marker;
+     }
+     else{
+       existedMarker.setLabel((i+1).toString());
+       tempVisibleMarker[nearSpot._id] = existedMarker;
+     }
+  }
+  for(var j in currentVisibleSpotMarkers){
+    if(!tempVisibleMarker[j]){
+      currentVisibleSpotMarkers[j].setMap(null);
+      delete currentVisibleSpotMarkers[j];
     }
   }
+  currentVisibleSpotMarkers = tempVisibleMarker;
 
   return 0;
 }

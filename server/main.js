@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 
 import {ParkingSpot} from '/lib/collections/ParkingSpot.js';
-
+//ParkingSpot.remove({});
 if(ParkingSpot.find().count() === 0){
   let spots = [
     {
@@ -25,6 +25,16 @@ if(ParkingSpot.find().count() === 0){
       },
       "position":{lat:51.13661, lng:-114.160626},
       "info":"You sick fk, This is poor people SuperStore."
+    },
+    {
+      "loc": {
+        "type" : "Point",
+        "coordinates" : [
+          -114.160626,51.13763
+        ]
+      },
+      "position":{lat:51.13763, lng:-114.160626},
+      "info":"near SuperStore."
     }
   ];
 
