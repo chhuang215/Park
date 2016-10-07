@@ -5,7 +5,7 @@ import { Geolocation } from 'meteor/mdg:geolocation';
 import { Session } from 'meteor/session';
 import { ParkingSpot } from '/lib/collections/ParkingSpot.js';
 import './parkMap.html';
-import './distanceProgressUI.html';
+//import './distanceProgressUI.html';
 
 const DEFAULT_RADIUS = 250;
 const DRIVE_ONLY = 1;
@@ -29,7 +29,6 @@ var currentLocationMarker = null;
 var mouseup = false;
 var drag = false;
 
-var allParkingSpots = [];
 var currentVisibleSpotMarkers = {};
 
 Template.parkMap.helpers({
@@ -160,10 +159,7 @@ Template.parkMap.onCreated(function (){
         radiusCircle.bindTo('center', currentLocationMarker, 'position');
 
    });
-   for(var i = 0; i < allParkingSpots.length; i++){
-     console.log(allParkingSpots[i]);
-    // AllParkingSpotMarker.insert(allParkingSpots[i]);
-   }
+
   });
 
 });
@@ -337,7 +333,6 @@ function findNearSpots(latLng){
 function beginDirection(spot){
   if(openedInfoWindow) openedInfoWindow.close();
 
-
   let fromLocation = Geolocation.latLng();
   let toLocation = spot.position;
   driveToDestination(fromLocation,toLocation);
@@ -408,12 +403,20 @@ function walkToDestination(fromLocation, toLocation){
 
 function displayDistanceProgress(){
   let totalDuration, walkPercentage, drivePercentage;
-  let innerhtml = '<div id="distanceProgressUI">';
 
+  //Session.set('directionMode');
   if(mode == DRIVE_ONLY) {
-    totalDuration = directionDriveDuration.value;
-    innerhtml += '<div class="distanceProgressLine" id="line_drive" style="width:100%"> <div class="distanceTimeText" id="driveMinText">'+directionDriveDuration.text+'</div> </div>';
+    Session.set('direction',
+    {
+      'driveVal': directionDriveDuration.value,
+      'driveText' : directionDriveDuration.text,
+      'drivePercentage' : 100,
+      'walkText': "",
+      'walkPercentage' : 0
+    });
+
   }else if(mode == DRIVE_AND_WALK){
+
     totalDuration = directionDriveDuration.value + directionWalkDuration.value;
     drivePercentage = (directionDriveDuration.value/totalDuration) * 100;
     walkPercentage = 100 - drivePercentage;
@@ -423,27 +426,25 @@ function displayDistanceProgress(){
       drivePercentage = 83;
     }
 
-    innerhtml += '<div class="distanceProgressLine" id="line_drive" style="width:'+drivePercentage+'%"> <div class="distanceTimeText" id="driveMinText">'+directionDriveDuration.text+'</div> </div>'+
-    '<div class="distanceProgressLine" id="line_walk" style="width:'+walkPercentage+'%"> <div class="distanceTimeText" id="walkMinText">'+directionWalkDuration.text+'</div> </div>'
+    Session.set('direction',
+    {
+      'driveVal': directionDriveDuration.value,
+      'driveText' : directionDriveDuration.text,
+      'drivePercentage' : drivePercentage,
+      'walkVal': directionWalkDuration.value,
+      'walkText' : directionWalkDuration.text,
+      'walkPercentage' : walkPercentage,
+    });
 
   }else{
-    totalDuration = directionWalkDuration.value;
-    innerhtml +='<div class="distanceProgressLine" id="line_walk" style="width:100%"> <div class="distanceTimeText" id="walkMinText">'+directionWalkDuration.text+'</div> </div>'
+
   }
 
-  innerhtml += "</div>";
-
-  let disProgressContainer = document.getElementById("distanceProgressUIContainer");
-
-  if(disProgressContainer){
-    disProgressContainer.innerHTML = innerhtml;
-  }
 }
 
 function resetDirectionsDisplay(){
   directionsDisplayDrive.setMap(null);
   directionsDisplayWalk.setMap(null);
-  let disProgress = document.getElementById("distanceProgressUI");
-  if (disProgress) disProgress.remove();
+  Session.set('direction', null);
   mode = -1;
 }

@@ -1,8 +1,15 @@
 <template name="distanceProgressUI">
   <div id="distanceProgressUIContainer">
-    <!-- <div id="distanceProgressUI">
-      <div id="line_drive" style="width:50%"><div class="distanceTimeText" id="driveMinText">3232</div></div>
-      <div id="line_walk" style="width:50%"><div class="distanceTimeText" id="walkMinText">12</div></div>
-    </div> -->
+    {{#if displayProgress}}
+    <div id="distanceProgressUI">
+      {{>distanceProgressLine id="line_drive" percent=displayProgress.drivePercentage text=displayProgress.driveText}}
+      {{>distanceProgressLine id="line_walk" percent=displayProgress.walkPercentage text=displayProgress.walkText}}
+    </div>
+    {{/if}}
   </div>
+</template>
+
+
+<template name="distanceProgressLine">
+    <div class="distanceProgressLine" id="{{id}}" style="width:{{percent}}%"><div class="distanceTimeText">{{text}}</div></div>
 </template>

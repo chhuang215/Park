@@ -20,12 +20,6 @@
   text-align: center;
 }
 
-/*#driveMinText{
-  position: absolute;
-  top:-1.2em;
-  left:1px;
-}*/
-
 #line_drive{
 
   position: absolute;
@@ -34,9 +28,6 @@
 
 }
 
-/*#walkMinText{
-
-}*/
 #line_walk{
 
   position: absolute;
