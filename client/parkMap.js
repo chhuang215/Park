@@ -1,5 +1,5 @@
 import { Template } from 'meteor/templating';
-
+import { ReactiveVar } from 'meteor/reactive-var';
 import { GoogleMaps } from 'meteor/dburles:google-maps';
 import { Geolocation } from 'meteor/mdg:geolocation';
 import { Session } from 'meteor/session';
@@ -26,6 +26,8 @@ var currentDestinationMarker = null;
 var radiusCircle = null;
 var currentLocationMarker = null;
 
+var locationToSearchNearby = null;
+var markerToSearchNearby = null;
 var mouseup = false;
 var drag = false;
 
@@ -90,8 +92,6 @@ Template.parkMap.onCreated(function (){
       }
     });
     directionsDisplayWalk.setOptions( { suppressMarkers: true } );
-
-
     //-----------FINISH Initialize direction service--------------
 
 
@@ -126,39 +126,47 @@ Template.parkMap.onCreated(function (){
     });
     //-----------FINISH Initialize map's listener--------------
 
-   // Put the markers on parking spots
-
+  //Initialize display of current location and location to search spots near by
   let latLng = null;
-
+  //locationToSearchNearby = new ReactiveVar(null);
+  markerToSearchNearby = new ReactiveVar(null);
   radiusCircle = createCircleRadius(map.instance, DEFAULT_RADIUS);
 
   // Create and move the marker when latLng changes.
   self.autorun(function() {
     // Get current lat lng
-     latLng = Geolocation.latLng();
-     if (! latLng) return;
+    latLng = Geolocation.latLng();
+    if (!latLng) return;
 
-     // Mark current location
-     if (! currentLocationMarker) {
-        currentLocationMarker = new google.maps.Marker({
-          position: new google.maps.LatLng(latLng.lat, latLng.lng),
-          map: map.instance,
-          label: "U"
-        });
+    // Mark current location
+    if (!currentLocationMarker) {
+      currentLocationMarker = new google.maps.Marker({
+        position: new google.maps.LatLng(latLng.lat, latLng.lng),
+        map: map.instance,
+        label: "U"
+      });
 
       // Center and zoom the map view onto the current position.
       map.instance.setZoom(14);
       map.instance.setCenter(currentLocationMarker.getPosition());
-     }
-     else {
-       currentLocationMarker.setPosition(latLng);
-     }
-     findNearSpots(currentLocationMarker.getPosition());
-     // Display radius if the radius if there is no destination set
-     if(!currentDestinationMarker)
-        radiusCircle.bindTo('center', currentLocationMarker, 'position');
+    } else {
+      currentLocationMarker.setPosition(latLng);
+    }
 
-   });
+    // Get current marker for searching nearby parking spots
+    let markerToSetRadiusAndSearchNear = markerToSearchNearby.get();
+
+    // If no marker is set, default to current location
+    if(markerToSetRadiusAndSearchNear == null) {
+      markerToSearchNearby.set(currentLocationMarker);
+      markerToSetRadiusAndSearchNear = currentLocationMarker;
+    }
+
+    // Display radius and search nearby parking spots
+    findNearSpots(markerToSetRadiusAndSearchNear.getPosition());
+    radiusCircle.bindTo('center', markerToSetRadiusAndSearchNear, 'position');
+
+  });
 
   });
 
@@ -206,19 +214,15 @@ function setNewDestination(map, latLng){
       map: map.instance,
     });
 
-    // Display radius
-    radiusCircle.bindTo('center', currentDestinationMarker, 'position');
-
     google.maps.event.addListener(currentDestinationMarker,'mousedown', function(e) {
       mousedUp = false;
+      // Remove marker if long press on the destination marker
       setTimeout(function(){
           if(mousedUp === false && !drag){
-
             currentDestinationMarker.setMap(null);
             currentDestinationMarker=null;
             resetDirectionsDisplay();
-            radiusCircle.bindTo('center', currentLocationMarker, 'position');
-            findNearSpots(currentLocationMarker.getPosition());
+            markerToSearchNearby.set(null);
           }
       }, 500);
     });
@@ -230,17 +234,19 @@ function setNewDestination(map, latLng){
 
     google.maps.event.addListener(currentDestinationMarker,'drag', function(event){
       drag = true;
+      markerToSearchNearby.set(currentDestinationMarker);
     });
 
     google.maps.event.addListener(currentDestinationMarker,'dragend', function(event){
       drag = false;
-      let result = findNearSpots(currentDestinationMarker.getPosition());
-      if(result == -1){
-        resetDirectionsDisplay();
-      }
+      markerToSearchNearby.set(currentDestinationMarker);
+      // let result = findNearSpots(currentDestinationMarker.getPosition());
+      // if(result == -1){
+      //   resetDirectionsDisplay();
+      // }
     });
   }
-  findNearSpots(latLng);
+  markerToSearchNearby.set(currentDestinationMarker);
 
 }
 
@@ -272,6 +278,8 @@ function findNearSpots(latLng){
       currentVisibleSpotMarkers[i].setMap(null);
     }
     currentVisibleSpotMarkers = {};
+    resetDirectionsDisplay();
+    return;
   }
 
   let tempVisibleMarker = {};
@@ -326,8 +334,6 @@ function findNearSpots(latLng){
     }
   }
   currentVisibleSpotMarkers = tempVisibleMarker;
-
-  return 0;
 }
 
 function beginDirection(spot){
@@ -436,10 +442,7 @@ function displayDistanceProgress(){
       'walkPercentage' : walkPercentage,
     });
 
-  }else{
-
   }
-
 }
 
 function resetDirectionsDisplay(){

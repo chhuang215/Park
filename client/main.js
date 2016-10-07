@@ -10,6 +10,9 @@ import './main.html';
 Template.main.events({
   "click .btnCurr"(event){
 
+  },
+  "click .btnSearch"(event){
+      $('.tbSearch').css('display','inline');
   }
 });
 

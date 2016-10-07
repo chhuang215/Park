@@ -4,11 +4,17 @@
     height: 600px;
 }
 
-.btnSearch{
+#searchDiv{
   position: fixed;
   left: 1em;
   top:1em;
 }
+
+#searchDiv > .tbSearch{
+  display:none;
+  width:auto;
+}
+
 .btnSetting{
   position: fixed;
   left: 1em;

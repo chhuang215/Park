@@ -3,7 +3,6 @@ import './distanceProgressUI.html';
 Template.distanceProgressUI.helpers({
   displayProgress(){
     let direction = Session.get('direction');
-    console.log(direction);
     if(!direction) return null;
     return direction;
   }
