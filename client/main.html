@@ -9,20 +9,21 @@
 </body>
 
 <template name="layout">
-
   {{> Template.dynamic template=main data=data}}
 </template>
 
 <template name="main">
   <!-- <div class="mainUI"> -->
-    <div id="searchDiv">
+
+    <div class="leftControls" id="searchDiv">
       <input type="text" class="form-control tbSearch" value="Search" onfocus="this.value=''" placeholder="Search">
-      <button class="btn btn-primary btnSearch" type="button" name="btnSearch"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+      <button class="btn btn-primary btnSearch leftControls" type="button" name="btnSearch"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
     </div>
-    <button class="btn btn-primary btnSetting" type="button" name="btnSetting"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>
-    <button class="btn btn-primary btnList" type="button" name="btnList">List <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>
-    <button class="btn btn-primary btn2d3d" type="button" name="btn2d3d">2D/3D</button>
-    <button class="btn btn-primary btnCurr" type="button" name="btnCurr"><i class="fa fa-crosshairs" aria-hidden="true"></i></button>
+    <button class="btn btn-primary btnSetting leftControls" type="button" name="btnSetting"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>
+    <button class="btn btn-primary btnList leftControls" type="button" name="btnList">List <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>
+    <button class="btn btn-primary btn2d3d leftControls" type="button" name="btn2d3d">2D/3D</button>
+    <button class="btn btn-primary btnCurr leftControls" type="button" name="btnCurr"><i class="fa fa-crosshairs" aria-hidden="true"></i></button>
+
     <!-- <div class="weatherContainer"></div> -->
     {{>simpleWeather}}
     {{> parkMap}}

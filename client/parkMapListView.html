@@ -1,0 +1,17 @@
+<template name="parkMapListView">
+<div id="listOfParkingSpots">
+  <ul class="list-group">
+    {{#each parkingSpots}}
+    <a href="#" id={{id}} class="list-group-item list-group-item-action">
+      {{label}}. {{name}}
+      {{#each ratingStars}}
+          <i class="fa {{this}} ratingStar" aria-hidden="true"></i>
+      {{/each}}
+    </a>
+    {{/each}}
+  </ul>
+</div>
+</template>
+
+<template name="parkMapListItem">
+</template>

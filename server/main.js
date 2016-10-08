@@ -1,10 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 
 import {ParkingSpot} from '/lib/collections/ParkingSpot.js';
-//ParkingSpot.remove({});
+ParkingSpot.remove({});
 if(ParkingSpot.find().count() === 0){
   let spots = [
     {
+      "name": "Northland Village",
       "loc": {
         "type" : "Point",
         "coordinates" : [
@@ -17,6 +18,7 @@ if(ParkingSpot.find().count() === 0){
       "info":"Hello fker, This is ghetto Walmart."
     },
     {
+      "name": "Edgemont SuperStore",
       "loc": {
         "type" : "Point",
         "coordinates" : [
@@ -27,6 +29,7 @@ if(ParkingSpot.find().count() === 0){
       "info":"You sick fk, This is poor people SuperStore."
     },
     {
+      "name":"Near the SuperStore",
       "loc": {
         "type" : "Point",
         "coordinates" : [
@@ -35,6 +38,17 @@ if(ParkingSpot.find().count() === 0){
       },
       "position":{lat:51.13763, lng:-114.160626},
       "info":"near SuperStore."
+    },
+    {
+      "name":"Street",
+      "loc": {
+        "type" : "Point",
+        "coordinates" : [
+          -114.15636,51.12577
+        ]
+      },
+      "position":{lat:51.12577, lng:-114.15636},
+      "info":"Hi"
     }
   ];
 
