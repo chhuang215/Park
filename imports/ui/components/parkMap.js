@@ -3,8 +3,9 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { GoogleMaps } from 'meteor/dburles:google-maps';
 
 import { Session } from 'meteor/session';
-import { ParkingSpot } from '/lib/collections/ParkingSpot.js';
+import { ParkingSpot } from '/imports/api/ParkingSpot/ParkingSpot.js';
 import './parkMap.html';
+import './parkingSpotList.js';
 
 const DEFAULT_RADIUS = 250;
 const DRIVE_ONLY = 1;
@@ -116,6 +117,7 @@ Template.parkMap.onCreated(function (){
       // If the user long press a location, adds a new marker as new destination
       setTimeout(function(){
           if(mousedUp === false && !drag){
+            markerToSearchNearby.set(null);
             setNewDestination(e.latLng);
           }
       }, 500);

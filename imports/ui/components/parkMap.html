@@ -1,0 +1,10 @@
+<!-- map -->
+<template name="parkMap">
+  <div class="map-container">
+
+    {{> googleMap name="parkMap" options=mapOptions}}
+
+    {{> parkingSpotList parkingSpots=getParkingSpotList}}
+    
+  </div>
+</template>

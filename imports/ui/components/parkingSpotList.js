@@ -1,8 +1,8 @@
 import { Template } from 'meteor/templating';
 import { GoogleMaps } from 'meteor/dburles:google-maps';
-import './parkMapListView.html';
+import './parkingSpotList.html';
 
-Template.parkMapListView.helpers({
+Template.parkingSpotList.helpers({
   ratingStars(){
     let wtf = ["fa-star","fa-star","fa-star","fa-star-o","fa-star-o"]
 
@@ -10,7 +10,7 @@ Template.parkMapListView.helpers({
   }
 });
 
-Template.parkMapListView.events({
+Template.parkingSpotList.events({
   "click #listOfParkingSpots a"(event){
     let id = event.currentTarget.id;
     let parkingSpotMarkers = Template.currentData().parkingSpots;
@@ -27,9 +27,4 @@ Template.parkMapListView.events({
     map.instance.setCenter(marker.getPosition());
     OpenInfo(marker);
   }
-});
-
-Template.parkMapListView.onCreated(function(){
-
-
 });
