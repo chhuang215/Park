@@ -1,8 +1,11 @@
 <template name="parkingSpotList">
 <div id="listOfParkingSpots">
+  <a href="">Close</a>
+
   <ul class="list-group">
     {{#each parkingSpots}}
-    <a href="#" id={{id}} class="list-group-item list-group-item-action">
+
+    <a href="" id={{id}} class="list-group-item list-group-item-action">
       {{label}}. {{name}}
       {{#each ratingStars}}
           <i class="fa {{this}} ratingStar" aria-hidden="true"></i>

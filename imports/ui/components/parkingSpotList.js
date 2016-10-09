@@ -24,7 +24,7 @@ Template.parkingSpotList.events({
     }
 
     let map = GoogleMaps.maps.parkMap;
-    map.instance.setCenter(marker.getPosition());
+    map.instance.panTo(marker.getPosition());
     OpenInfo(marker);
   }
 });

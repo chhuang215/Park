@@ -3,8 +3,7 @@
   <div class="map-container">
 
     {{> googleMap name="parkMap" options=mapOptions}}
-
-    {{> parkingSpotList parkingSpots=getParkingSpotList}}
-    
   </div>
+  {{> parkingSpotList parkingSpots=getParkingSpotList}}
+  {{> parkingSpotDetail}}
 </template>

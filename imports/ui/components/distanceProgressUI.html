@@ -2,8 +2,8 @@
   <div id="distanceProgressUIContainer">
     {{#if displayProgress}}
     <div id="distanceProgressUI">
-      {{>distanceProgressLine id="line_drive" percent=displayProgress.drivePercentage text=displayProgress.driveText}}
-      {{>distanceProgressLine id="line_walk" percent=displayProgress.walkPercentage text=displayProgress.walkText}}
+      {{>distanceProgressLine id="line_drive" icon="directions_car" percent=displayProgress.drivePercentage text=displayProgress.driveText}}
+      {{>distanceProgressLine id="line_walk" icon="directions_walk" percent=displayProgress.walkPercentage text=displayProgress.walkText}}
     </div>
     {{/if}}
   </div>
@@ -11,5 +11,9 @@
 
 
 <template name="distanceProgressLine">
-    <div class="distanceProgressLine" id="{{id}}" style="width:{{percent}}%"><div class="distanceTimeText">{{text}}</div></div>
+  {{#if percent}}
+    <div class="distanceProgressLine" id="{{id}}" style="width:{{percent}}%">
+      <div class="distanceTimeText"><i class="material-icons">{{icon}}</i> <span>{{text}}</span></div>
+    </div>
+  {{/if}}
 </template>

@@ -6,7 +6,7 @@ import { Session } from 'meteor/session';
 import { ParkingSpot } from '/imports/api/ParkingSpot/ParkingSpot.js';
 import './parkMap.html';
 import './parkingSpotList.js';
-
+import './parkingSpotDetail.js';
 const DEFAULT_RADIUS = 250;
 const DRIVE_ONLY = 1;
 const WALK_ONLY = 2;
@@ -15,10 +15,6 @@ const DRIVE_AND_WALK = 3;
 var directionsService = null;
 var directionsDisplayDrive = null;
 var directionsDisplayWalk = null;
-var directionDriveDuration = null;
-var directionWalkDuration = null;
-
-var mode = -1;
 
 OpenedInfoWindow = null;
 var currentDestinationMarker = null;
@@ -26,7 +22,6 @@ var currentDestinationMarker = null;
 var radiusCircle = null;
 var currentLocationMarker = null;
 
-var locationToSearchNearby = null;
 var markerToSearchNearby = new ReactiveVar(null);
 var mouseup = false;
 var drag = false;
@@ -72,14 +67,14 @@ Template.parkMap.helpers({
 
 Template.parkMap.events({
   'click .btnNavToParkingSpot'(event) {
-    mode = DRIVE_ONLY;
+
     let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
-    beginDirection(spot);
+    beginDirection(spot , DRIVE_ONLY);
   },
   'click .btnNavToSpotAndWalk'(event){
-    mode = DRIVE_AND_WALK;
+
     let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
-    beginDirection(spot);
+    beginDirection(spot,  DRIVE_AND_WALK);
   }
 });
 
@@ -304,6 +299,7 @@ function findNearSpots(latLng){
        '<button class="btn btn-sm btn-warning btnNavToParkingSpot" id="'+nearSpot._id+'">Click here to fking navigate</button>' +
        '<br />'+
        '<button class="btn btn-sm btn-success btnNavToSpotAndWalk" id="'+nearSpot._id+'">Click here to park and walk</button>'+
+       '<button class="btn btn-sm" data-toggle="modal" data-target="#test">Show detail</button>'+
      '</div>' ;
      let locationInfoWindow = new google.maps.InfoWindow({
        content: contentInfo
@@ -323,9 +319,9 @@ function findNearSpots(latLng){
       marker.setMap(mapInstance);
       marker.addListener('click', function () {
          // Close any existing infowindow
-         if(!currentDestinationMarker){
-           if(OpenedInfoWindow) CloseInfo();
-         }
+         //if(!currentDestinationMarker){
+            CloseInfo();
+         //}
          // Open infowindow when marker is clicked
          OpenInfo(this);
         //  OpenedInfoWindow = this.infowindow;
@@ -351,12 +347,26 @@ function findNearSpots(latLng){
   }
 }
 
-function beginDirection(spot){
+function beginDirection(spot, mode){
   CloseInfo();
-
+  Session.set('direction', null)
   let fromLocation = Session.get('currentLocation');
   let toLocation = spot.position;
-  driveToDestination(fromLocation,toLocation);
+  if(mode == DRIVE_ONLY){
+    driveToDestination(fromLocation,toLocation);
+  } else if(mode == DRIVE_AND_WALK){
+    driveToDestination(fromLocation,toLocation);
+    if(!currentDestinationMarker) {
+      return;
+    }
+    fromLocation = toLocation;
+    toLocation = currentDestinationMarker.getPosition();
+    walkToDestination(fromLocation, toLocation);
+  } else if(mode == WALK_ONLY){
+
+  }
+
+
 }
 
 
@@ -382,17 +392,14 @@ function driveToDestination(fromLocation, toLocation){
       directionsDisplayDrive.setDirections(result);
 
       directionDriveDuration = result.routes[0].legs[0].duration;
-
-      if(mode == DRIVE_AND_WALK){
-        if(!currentDestinationMarker) return;
-        fromLocation = toLocation;
-
-        toLocation = currentDestinationMarker.getPosition();
-
-        walkToDestination(fromLocation,toLocation);
-      }else{
-        displayDistanceProgress();
+      let d = Session.get('direction');
+      if(!d){
+        d = {};
       }
+      d['driveVal'] = directionDriveDuration.value;
+      d['driveText'] = directionDriveDuration.text;
+      Session.set('direction', d);
+
     }
   });
 }
@@ -412,59 +419,23 @@ function walkToDestination(fromLocation, toLocation){
     if (status == 'OK') {
       directionsDisplayWalk.setDirections(result);
 
-      //console.log(result);
-      directionWalkDuration = result.routes[0].legs[0].duration;
-      if(mode == DRIVE_AND_WALK){
-        displayDistanceProgress();
+      let directionWalkDuration = result.routes[0].legs[0].duration;
+      let d = Session.get('direction');
+      if(!d){
+        d = {};
       }
+      d['walkVal'] = directionWalkDuration.value;
+      d['walkText'] = directionWalkDuration.text;
+      Session.set('direction', d);
+
     }
   });
 }
-
-function displayDistanceProgress(){
-  let totalDuration, walkPercentage, drivePercentage;
-
-  //Session.set('directionMode');
-  if(mode == DRIVE_ONLY) {
-    Session.set('direction',
-    {
-      'driveVal': directionDriveDuration.value,
-      'driveText' : directionDriveDuration.text,
-      'drivePercentage' : 100,
-      'walkText': "",
-      'walkPercentage' : 0
-    });
-
-  }else if(mode == DRIVE_AND_WALK){
-
-    totalDuration = directionDriveDuration.value + directionWalkDuration.value;
-    drivePercentage = (directionDriveDuration.value/totalDuration) * 100;
-    walkPercentage = 100 - drivePercentage;
-
-    if(walkPercentage < 17){
-      walkPercentage = 17;
-      drivePercentage = 83;
-    }
-
-    Session.set('direction',
-    {
-      'driveVal': directionDriveDuration.value,
-      'driveText' : directionDriveDuration.text,
-      'drivePercentage' : drivePercentage,
-      'walkVal': directionWalkDuration.value,
-      'walkText' : directionWalkDuration.text,
-      'walkPercentage' : walkPercentage,
-    });
-
-  }
-}
-
 
 function resetDirectionsDisplay(){
   directionsDisplayDrive.setMap(null);
   directionsDisplayWalk.setMap(null);
   Session.set('direction', null);
-  mode = -1;
 }
 
 OpenInfo = function (marker){
