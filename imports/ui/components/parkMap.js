@@ -80,12 +80,56 @@ Template.parkMap.events({
 
 Template.parkMap.onCreated(function (){
   // Load api
-  GoogleMaps.load({key: 'AIzaSyCd-5haHDEEa8HjyaRaLq8aczxuwkP5ZMs'});
+  GoogleMaps.load({key: 'AIzaSyCd-5haHDEEa8HjyaRaLq8aczxuwkP5ZMs', libraries: 'geometry,places' });
 
   var self = this;
 
   GoogleMaps.ready('parkMap', function(map) {
     let mapInstance = map.instance;
+
+    // INITIALIZE Create the search box and link it to the UI element.
+    var input = document.getElementsByClassName('tbSearch')[0];
+
+    var searchBox = new google.maps.places.SearchBox(input);
+    searchBox.addListener('places_changed', function() {
+      var places = searchBox.getPlaces();
+      console.log(places);
+      if (places.length == 0) {
+        return;
+      }
+      // let markers = [];
+      // // For each place, get the icon, name and location.
+      // var bounds = new google.maps.LatLngBounds();
+      // places.forEach(function(place) {
+      //  if (!place.geometry) {
+      //    console.log("Returned place contains no geometry");
+      //    return;
+      //  }
+      //  var icon = {
+      //    url: place.icon,
+      //    size: new google.maps.Size(71, 71),
+      //    origin: new google.maps.Point(0, 0),
+      //    anchor: new google.maps.Point(17, 34),
+      //    scaledSize: new google.maps.Size(25, 25)
+      //  };
+      //
+      //  // Create a marker for each place.
+      //  markers.push(new google.maps.Marker({
+      //    map: mapInstance,
+      //    icon: icon,
+      //    title: place.name,
+      //    position: place.geometry.location
+      //  }));
+      //
+      //  if (place.geometry.viewport) {
+      //    // Only geocodes have viewport.
+      //    bounds.union(place.geometry.viewport);
+      //  } else {
+      //    bounds.extend(place.geometry.location);
+      //  }
+      // });
+      // mapInstance.fitBounds(bounds);
+    });
 
 
     //-----------Initialize direction service--------------
@@ -131,6 +175,11 @@ Template.parkMap.onCreated(function (){
     mapInstance.addListener('dragend', function(event){
       drag = false;
     });
+
+    mapInstance.addListener('bounds_changed', function() {
+      searchBox.setBounds(mapInstance.getBounds());
+    });
+
     //-----------FINISH Initialize map's listener--------------
 
     //Initialize display of current location and location to search spots near by
@@ -314,7 +363,6 @@ function findNearSpots(latLng){
         label: (i+1).toString(),
         infowindow: locationInfoWindow,
         id: nearSpot._id,
-        name: nearSpot.name
       });
       marker.setMap(mapInstance);
       marker.addListener('click', function () {

@@ -27,7 +27,7 @@ Template.mainPage.events({
   }
 });
 
-Template.mainPage.onCreated(function(){
+Template.mainPage.onCreated(function(){  
   this.autorun(function(){
     let latLng = Geolocation.latLng();
     if(!latLng) {Session.set('currentLocation',null); return;}

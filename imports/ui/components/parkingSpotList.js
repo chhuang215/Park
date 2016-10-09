@@ -1,12 +1,31 @@
 import { Template } from 'meteor/templating';
 import { GoogleMaps } from 'meteor/dburles:google-maps';
+import { ParkingSpot } from '/imports/api/ParkingSpot/ParkingSpot.js';
 import './parkingSpotList.html';
 
 Template.parkingSpotList.helpers({
+  getName(){
+    let p = ParkingSpot.findOne({_id:this.id});
+    if(!p) return;
+    return p.name;
+  },
   ratingStars(){
-    let wtf = ["fa-star","fa-star","fa-star","fa-star-o","fa-star-o"]
-
-    return wtf;
+    let p = ParkingSpot.findOne({_id:this.id});
+    if(!p) return;
+    let rating = p.rating;
+    let stars = [];
+    for (var i = 0; i < 5; i ++){
+      if(rating >= 1.0){
+          rating = rating - 1.0;
+          stars.push("fa-star");
+      }else if (rating >= 0.5){
+          stars.push("fa-star-half-o");
+          rating = 0;
+      }else{
+        stars.push("fa-star-o");
+      }
+    }
+    return stars;
   }
 });
 

@@ -15,7 +15,8 @@ if(ParkingSpot.find().count() === 0){
         ]
       },
       "position":{lat:51.0982289, lng:-114.1450605},
-      "info":"Hello fker, This is ghetto Walmart."
+      "info":"Hello fker, This is ghetto Walmart.",
+      "rating":3,
     },
     {
       "name": "Edgemont SuperStore",
@@ -26,7 +27,8 @@ if(ParkingSpot.find().count() === 0){
         ]
       },
       "position":{lat:51.13661, lng:-114.160626},
-      "info":"You sick fk, This is poor people SuperStore."
+      "info":"You sick fk, This is poor people SuperStore.",
+      "rating":3.5
     },
     {
       "name":"Near the SuperStore",
@@ -37,7 +39,8 @@ if(ParkingSpot.find().count() === 0){
         ]
       },
       "position":{lat:51.13763, lng:-114.160626},
-      "info":"near SuperStore."
+      "info":"near SuperStore.",
+      "rating":4
     },
     {
       "name":"Street",
@@ -48,7 +51,8 @@ if(ParkingSpot.find().count() === 0){
         ]
       },
       "position":{lat:51.12577, lng:-114.15636},
-      "info":"Hi"
+      "info":"Hi",
+      "rating":5
     }
   ];
 
