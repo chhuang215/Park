@@ -1,0 +1,22 @@
+<template name="overlayControl">
+  <div class="leftControls" id="searchDiv">
+    <div class="searchInputGroup form-group col-sm-5 col-xs-12 ">
+      <!-- <div class="col-xs-10"> -->
+        <div class="input-group">
+          <input type="text" class="form-control tbSearch" value="Search" onfocus="this.value=''" placeholder="Search">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button">Go</button>
+          </span>
+        </div><!-- /input-group -->
+      <!-- </div> -->
+
+      <a href="" class="js-cancelSearch"><span class="glyphicon glyphicon-remove"></span></a>
+
+    </div>
+    <button class="btn btn-primary btnSearch leftControls" type="button" name="btnSearch"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+  </div>
+  <button class="btn btn-primary btnSetting leftControls" type="button" name="btnSetting"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>
+  <button class="btn btn-primary btnList leftControls" type="button" name="btnList">List View<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>
+  <button class="btn btn-primary btn2d3d leftControls" type="button" name="btn2d3d">2D/3D</button>
+  <button class="btn btn-primary btnCurr leftControls" type="button" name="btnCurr"><i class="fa fa-crosshairs" aria-hidden="true"></i></button>
+</template>

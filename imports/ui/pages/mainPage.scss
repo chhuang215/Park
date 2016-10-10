@@ -3,62 +3,7 @@
     height: 600px;
 }
 
-#searchDiv{
-  position: fixed;
-  left: 1em;
-  top:1em;
-}
 
-#searchDiv .searchInputGroup{
-  display:none;
-  padding:0;
-  // width:auto;
-}
-#searchDiv .searchInputGroup .input-group{
-  width:82%;
-  float:left;
-  // width:auto;
-}
-#searchDiv .tbSearch{
-
-  // width:auto;
-}
-
-#searchDiv a.js-cancelSearch{
-  color:red;
-  // width:auto;
-}
-
-#searchDiv .js-cancelSearch{
-  padding-left: 2px;
-  padding-right: 2px;
-  font-size: 25px;
-  float: left;
-  // width:auto;
-}
-
-.btnSetting{
-  position: fixed;
-  left: 1em;
-  top:4em;
-}
-.btnList{
-  position: fixed;
-  left: 1em;
-  top:7em;
-}
-
-.btn2d3d{
-  position: fixed;
-  left: 1em;
-  bottom: 1em;
-}
-
-.btnCurr{
-  position: fixed;
-  left: 1em;
-  bottom: 4em;
-}
 
 #weather{
   font-size: 1.5em;

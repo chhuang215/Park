@@ -138,13 +138,13 @@ Template.parkMap.onCreated(function (){
     //-----------Initialize direction service--------------
     directionsService = new google.maps.DirectionsService();
     directionsDisplayDrive = new google.maps.DirectionsRenderer();
-    directionsDisplayDrive.setOptions( { suppressMarkers: true } );
+    directionsDisplayDrive.setOptions( { suppressMarkers: true , preserveViewport: true} );
     directionsDisplayWalk = new google.maps.DirectionsRenderer({
       polylineOptions: {
         strokeColor: "green",
       }
     });
-    directionsDisplayWalk.setOptions( { suppressMarkers: true } );
+    directionsDisplayWalk.setOptions( { suppressMarkers: true, preserveViewport: true } );
     //-----------FINISH Initialize direction service--------------
 
 
@@ -222,7 +222,7 @@ Template.parkMap.onCreated(function (){
 
       // Display radius and search nearby parking spots
       radiusCircle.bindTo('center', markerToSetRadiusAndSearchNear, 'position');
-      findNearSpots(markerToSetRadiusAndSearchNear.getPosition());
+      findNearSpots();
     });
 
   });
@@ -249,8 +249,14 @@ function createCircleRadius(map, radius = DEFAULT_RADIUS, color = '#7BB2CA'){
     fillColor: '#7BB2CA',
     fillOpacity: 0.2,
     clickable: false,
+    editable: true,
   //  center: currentLocationMarker.position
   });
+
+  google.maps.event.addListener(circle, 'radius_changed', function() {
+    findNearSpots();
+  });
+
   return circle;
 }
 
@@ -309,12 +315,15 @@ function setNewDestination(latLng){
 /**
  * Find near parking spot with provided center location
  */
-function findNearSpots(latLng){
+function findNearSpots(){
   let map = GoogleMaps.maps.parkMap;
   let mapInstance = map.instance;
+  let marker = markerToSearchNearby.get();
+  let latLng = marker.getPosition();
   let lat = latLng.lat();
   let lng = latLng.lng();
 
+  // Get near parking spots within the radius
   let nearSpots = ParkingSpot.find({
     loc: {
       $near: {
@@ -322,7 +331,7 @@ function findNearSpots(latLng){
           type: "Point" ,
           coordinates: [ lng , lat ]
         },
-        $maxDistance:DEFAULT_RADIUS
+        $maxDistance: radiusCircle.getRadius()
       }
     }
   }).fetch();
@@ -366,6 +375,7 @@ function findNearSpots(latLng){
         label: (i+1).toString(),
         infowindow: locationInfoWindow,
         id: nearSpot._id,
+        title: nearSpot.name
       });
       marker.setMap(mapInstance);
       marker.addListener('click', function () {
@@ -400,6 +410,7 @@ function findNearSpots(latLng){
 
 function beginDirection(spot, mode){
   CloseInfo();
+  resetDirectionsDisplay();
   Session.set('direction', null)
   let fromLocation = Session.get('currentLocation');
   let toLocation = spot.position;

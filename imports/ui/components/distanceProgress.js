@@ -1,7 +1,7 @@
 import { Template } from 'meteor/templating';
-import './distanceProgressUI.html';
+import './distanceProgress.html';
 
-Template.distanceProgressUI.helpers({
+Template.distanceProgress.helpers({
   displayProgress(){
     let direction = Session.get('direction');
     if(!direction) return null;
@@ -40,6 +40,6 @@ Template.distanceProgressUI.helpers({
   }
 });
 
-Template.distanceProgressUI.onCreated(function(){
+Template.distanceProgress.onCreated(function(){
   Session.set("direction", null);
 });

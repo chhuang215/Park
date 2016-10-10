@@ -1,4 +1,4 @@
-#distanceProgressUIContainer{
+#distanceProgressContainer{
   position: fixed;
   pointer-events: none;
   width:100%;
@@ -9,7 +9,7 @@
   text-align: center;
 }
 
-#distanceProgressUI{
+#distanceProgress{
   position: relative;
   max-width: 430px;
   width:70%;
