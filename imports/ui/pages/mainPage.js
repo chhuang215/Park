@@ -9,8 +9,13 @@ Template.mainPage.events({
   "click .btnCurr"(event){
     console.log('click');
   },
+  "click .js-cancelSearch"(event){
+    $('#searchDiv .searchInputGroup').css('display','none');
+    $('.btnSearch').toggle();
+  },
   "click .btnSearch"(event){
-      $('.tbSearch').css('display','inline');
+    $('#searchDiv .searchInputGroup').css('display','inline');
+    $('.btnSearch').toggle();
   },
   "click .btnList"(event){
     //$("#listOfParkingSpots").toggle('slide', {direction: 'left'}, 100);
@@ -27,7 +32,7 @@ Template.mainPage.events({
   }
 });
 
-Template.mainPage.onCreated(function(){  
+Template.mainPage.onCreated(function(){
   this.autorun(function(){
     let latLng = Geolocation.latLng();
     if(!latLng) {Session.set('currentLocation',null); return;}

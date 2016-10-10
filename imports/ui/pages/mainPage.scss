@@ -9,9 +9,32 @@
   top:1em;
 }
 
-#searchDiv > .tbSearch{
+#searchDiv .searchInputGroup{
   display:none;
-  width:auto;
+  padding:0;
+  // width:auto;
+}
+#searchDiv .searchInputGroup .input-group{
+  width:82%;
+  float:left;
+  // width:auto;
+}
+#searchDiv .tbSearch{
+
+  // width:auto;
+}
+
+#searchDiv a.js-cancelSearch{
+  color:red;
+  // width:auto;
+}
+
+#searchDiv .js-cancelSearch{
+  padding-left: 2px;
+  padding-right: 2px;
+  font-size: 25px;
+  float: left;
+  // width:auto;
 }
 
 .btnSetting{

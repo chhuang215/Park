@@ -97,6 +97,9 @@ Template.parkMap.onCreated(function (){
       if (places.length == 0) {
         return;
       }
+      places.forEach(function(place) {
+        //console.log(place.geometry);
+      });
       // let markers = [];
       // // For each place, get the icon, name and location.
       // var bounds = new google.maps.LatLngBounds();
