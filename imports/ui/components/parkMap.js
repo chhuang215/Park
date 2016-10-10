@@ -4,6 +4,8 @@ import { GoogleMaps } from 'meteor/dburles:google-maps';
 
 import { Session } from 'meteor/session';
 import { ParkingSpot } from '/imports/api/ParkingSpot/ParkingSpot.js';
+import '/imports/api/map-icons/map-icons.js';
+import './parkMapGlobalFunctions.js';
 import './parkMap.html';
 import './parkingSpotList.js';
 import './parkingSpotDetail.js';
@@ -16,7 +18,6 @@ var directionsService = null;
 var directionsDisplayDrive = null;
 var directionsDisplayWalk = null;
 
-OpenedInfoWindow = null;
 var currentDestinationMarker = null;
 
 var radiusCircle = null;
@@ -79,8 +80,8 @@ Template.parkMap.events({
 });
 
 Template.parkMap.onCreated(function (){
-  // Load api
-  GoogleMaps.load({key: 'AIzaSyCd-5haHDEEa8HjyaRaLq8aczxuwkP5ZMs', libraries: 'geometry,places' });
+
+//  GoogleMaps.load({key: 'AIzaSyCd-5haHDEEa8HjyaRaLq8aczxuwkP5ZMs', libraries: 'geometry,places' });
 
   var self = this;
 
@@ -201,8 +202,31 @@ Template.parkMap.onCreated(function (){
         currentLocationMarker = new google.maps.Marker({
           position: new google.maps.LatLng(latLng.lat, latLng.lng),
           map: map.instance,
-          label: "U"
+          //label: "U",
+          clickable: false,
+          cursor: "pointer",
+          icon: {
+            url: "/img/icons/gpsloc.png",
+            size: new google.maps.Size(34, 34),
+            scaledSize: new google.maps.Size(17, 17),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(8, 8)
+          },
+          optimized: true,
+          title: "Current location",
         });
+        // currentLocationMarker = new Marker({
+        //   position: new google.maps.LatLng(latLng.lat, latLng.lng),
+        //   map: map.instance,
+        //   icon: {
+        //       path: MAP_PIN,
+        //       fillColor: '#00CCBB',
+        //       fillOpacity: 1,
+        //       strokeColor: '',
+        //       strokeWeight: 0
+        //   },
+        //   map_icon_label: '<span class="map-icon map-icon-map-pin"></span>'
+        // });
 
         // Center and zoom the map view onto the current position.
         map.instance.setZoom(14);
@@ -249,7 +273,7 @@ function createCircleRadius(map, radius = DEFAULT_RADIUS, color = '#7BB2CA'){
     fillColor: '#7BB2CA',
     fillOpacity: 0.2,
     clickable: false,
-    editable: true,
+    //editable: true,
   //  center: currentLocationMarker.position
   });
 
@@ -427,8 +451,6 @@ function beginDirection(spot, mode){
   } else if(mode == WALK_ONLY){
 
   }
-
-
 }
 
 
@@ -498,20 +520,4 @@ function resetDirectionsDisplay(){
   directionsDisplayDrive.setMap(null);
   directionsDisplayWalk.setMap(null);
   Session.set('direction', null);
-}
-
-OpenInfo = function (marker){
-  if(marker.infowindow != OpenedInfoWindow){
-    CloseInfo();
-    let map = GoogleMaps.maps.parkMap;
-    OpenedInfoWindow = marker.infowindow;
-    marker.infowindow.open(map, marker);
-  }
-}
-
-CloseInfo = function(){
-  if(OpenedInfoWindow){
-    OpenedInfoWindow.close();
-  }
-  OpenedInfoWindow = null;
 }

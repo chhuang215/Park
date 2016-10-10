@@ -1,2 +1,3 @@
 import './routes.js';
-import './initializeSimpleWeather.js'
+import './initializeGoogleMap.js';
+import './initializeSimpleWeather.js';
