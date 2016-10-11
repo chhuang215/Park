@@ -31,8 +31,13 @@ Template.parkingSpotList.helpers({
 });
 
 Template.parkingSpotList.events({
+  "click .js-closeList"(event){
+    ToggleListView();
+  },
   "click #listOfParkingSpots a"(event){
-    let id = event.currentTarget.id;
+    let target =  event.currentTarget;
+    let id = target.id;
+
     let parkingSpotMarkers = Template.currentData().parkingSpots;
     let marker = null;
     for(var i = 0; i < parkingSpotMarkers.length; i++){
@@ -47,4 +52,15 @@ Template.parkingSpotList.events({
     map.instance.panTo(marker.getPosition());
     OpenInfo(marker);
   }
+});
+
+Template.parkingSpotList.onRendered(function(){
+  this.autorun(function(){
+
+    let selectedParkingSpotId = Session.get("selectedParkingSpot");
+    $(".active").removeClass("active");
+    if(!selectedParkingSpotId) return;
+
+    $("#"+selectedParkingSpotId+".list-group-item").addClass("active");
+  });
 });

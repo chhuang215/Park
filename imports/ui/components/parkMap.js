@@ -152,7 +152,7 @@ Template.parkMap.onCreated(function (){
     //-----------Initialize map's listener--------------
     // Close any window if user click on anywhere on the map
     mapInstance.addListener('click', function(e) {
-      if(OpenedInfoWindow) CloseInfo();
+      CloseInfo();
     });
 
     mapInstance.addListener('mousedown', function(e) {
@@ -324,11 +324,17 @@ function setNewDestination(latLng){
 
     google.maps.event.addListener(currentDestinationMarker,'drag', function(event){
       drag = true;
+      let m = Session.get("selectedParkingSpot");
+      Session.set("selectedParkingSpot", null);
+      Session.set("selectedParkingSpot", m);
       markerToSearchNearby.set(currentDestinationMarker);
     });
 
     google.maps.event.addListener(currentDestinationMarker,'dragend', function(event){
       drag = false;
+      let m = Session.get("selectedParkingSpot");
+      Session.set("selectedParkingSpot", null);
+      Session.set("selectedParkingSpot", m);
       markerToSearchNearby.set(currentDestinationMarker);
     });
   }
@@ -389,7 +395,9 @@ function findNearSpots(){
      let locationInfoWindow = new google.maps.InfoWindow({
        content: contentInfo
      });
-
+     locationInfoWindow.addListener('closeclick', function(){
+       CloseInfo();
+     });
      //let existedMarkerId = CurrentVisibleSpotMarkerId.findOne(nearSpot._id);
      let existedMarker = currentVisibleSpotMarkers[nearSpot._id];
      if(!existedMarker){
@@ -403,14 +411,7 @@ function findNearSpots(){
       });
       marker.setMap(mapInstance);
       marker.addListener('click', function () {
-         // Close any existing infowindow
-         //if(!currentDestinationMarker){
-            CloseInfo();
-         //}
-         // Open infowindow when marker is clicked
          OpenInfo(this);
-        //  OpenedInfoWindow = this.infowindow;
-        //  this.infowindow.open(map, this);
       });
       // CurrentVisibleSpotMarkerId.insert({_id:nearSpot._id});
       tempVisibleMarker[nearSpot._id] = marker;
