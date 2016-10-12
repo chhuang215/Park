@@ -1,63 +1,31 @@
-
-#searchDiv .searchInputGroup{
-  display:none;
-  padding:0;
-  // width:auto;
-}
-#searchDiv .searchInputGroup .input-group{
-  width:82%;
-  float:left;
-  // width:auto;
-}
-#searchDiv .tbSearch{
-
-  // width:auto;
-}
-
-#searchDiv a.js-cancelSearch{
-  color:red;
-  // width:auto;
-}
-
-#searchDiv .js-cancelSearch{
-  padding-left: 2px;
-  padding-right: 2px;
-  font-size: 25px;
-  float: left;
-  // width:auto;
-}
-
-#searchDiv, .btnSearch{
-  position: fixed;
-  left: 1em;
-  top:1em;
-}
-
-.leftControls.btn{
-    background: transparent;
-    border: none !important;
-    font-size: 19px;
+.left-controls{
+  position:fixed;
+  left:1em;
 }
 
 .btnSetting {
-  position: fixed;
-  left: 1em;
-  top:4em;
+  @extend .btn-transparent;
+  @extend .left-controls;
+
+  top:3.5em;
 }
 .btnList{
-  position: fixed;
-  left: 1em;
-  top:7em;
+  @extend .btn-transparent;
+  @extend .left-controls;
+
+  top:6.5em;
 }
 
 .btn2d3d{
-  position: fixed;
-  left: 1em;
+  @extend .btn-transparent;
+  @extend .left-controls;
+
   bottom: 1em;
 }
 
 .btnCurr{
-  position: fixed;
-  left: 1em;
+  @extend .btn-transparent;
+  @extend .left-controls;
+
   bottom: 4em;
 }

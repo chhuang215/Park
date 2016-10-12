@@ -1,0 +1,25 @@
+<template name="menuBar">
+  <div id="menuBar">
+    <div id="searchDiv" class="hidden">
+      <div class="searchInputGroup form-group col-sm-5 col-xs-12 ">
+
+          <div class="input-group">
+            <input type="text" class="form-control tbSearch " value="Search" onfocus="this.value=''" placeholder="Search">
+            <span class="input-group-addon">
+
+
+              <button class="btn btn-default" type="button"> <span class="glyphicon glyphicon-search"></span></button>
+            </span>
+          </div><!-- /input-group -->
+        <!-- </div> -->
+
+        <a href="" class="js-cancelSearch "><span class="glyphicon glyphicon-remove"></span></a>
+
+      </div>
+
+    </div>
+    <button class="btn btnSearch btnSearchClose" type="button" name="btnSearch">
+      <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+    </button>
+  </div>
+</template>

@@ -87,54 +87,6 @@ Template.parkMap.onCreated(function (){
   GoogleMaps.ready('parkMap', function(map) {
     let mapInstance = map.instance;
 
-    // INITIALIZE Create the search box and link it to the UI element.
-    var input = document.getElementsByClassName('tbSearch')[0];
-
-    var searchBox = new google.maps.places.SearchBox(input);
-    searchBox.addListener('places_changed', function() {
-      var places = searchBox.getPlaces();
-      console.log(places);
-      if (places.length == 0) {
-        return;
-      }
-      places.forEach(function(place) {
-        //console.log(place.geometry);
-      });
-      // let markers = [];
-      // // For each place, get the icon, name and location.
-      // var bounds = new google.maps.LatLngBounds();
-      // places.forEach(function(place) {
-      //  if (!place.geometry) {
-      //    console.log("Returned place contains no geometry");
-      //    return;
-      //  }
-      //  var icon = {
-      //    url: place.icon,
-      //    size: new google.maps.Size(71, 71),
-      //    origin: new google.maps.Point(0, 0),
-      //    anchor: new google.maps.Point(17, 34),
-      //    scaledSize: new google.maps.Size(25, 25)
-      //  };
-      //
-      //  // Create a marker for each place.
-      //  markers.push(new google.maps.Marker({
-      //    map: mapInstance,
-      //    icon: icon,
-      //    title: place.name,
-      //    position: place.geometry.location
-      //  }));
-      //
-      //  if (place.geometry.viewport) {
-      //    // Only geocodes have viewport.
-      //    bounds.union(place.geometry.viewport);
-      //  } else {
-      //    bounds.extend(place.geometry.location);
-      //  }
-      // });
-      // mapInstance.fitBounds(bounds);
-    });
-
-
     //-----------Initialize direction service--------------
     directionsService = new google.maps.DirectionsService();
     directionsDisplayDrive = new google.maps.DirectionsRenderer();
@@ -179,9 +131,6 @@ Template.parkMap.onCreated(function (){
       drag = false;
     });
 
-    mapInstance.addListener('bounds_changed', function() {
-      searchBox.setBounds(mapInstance.getBounds());
-    });
 
     //-----------FINISH Initialize map's listener--------------
 
@@ -368,21 +317,20 @@ function findNearSpots(){
     let nearSpot = nearSpots[i];
 
     let contentInfo =
-     '<div id=p'+i+'>'+
+      '<div id=p'+i+'>'+
        '<p>'+ nearSpot.info +'</p>'+
        '<br />'+
        '<button class="btn btn-sm btn-warning btnNavToParkingSpot" id="'+nearSpot._id+'">Click here to fking navigate</button>' +
        '<br />'+
        '<button class="btn btn-sm btn-success btnNavToSpotAndWalk" id="'+nearSpot._id+'">Click here to park and walk</button>'+
        '<button class="btn btn-sm" data-toggle="modal" data-target="#test">Show detail</button>'+
-     '</div>' ;
-     let locationInfoWindow = new google.maps.InfoWindow({
-       content: contentInfo
-     });
-     locationInfoWindow.addListener('closeclick', function(){
-       CloseInfo();
-     });
-
+      '</div>' ;
+    let locationInfoWindow = new google.maps.InfoWindow({
+     content: contentInfo
+    });
+    locationInfoWindow.addListener('closeclick', function() {
+      CloseInfo();
+    });
      let existedMarker = currentVisibleSpotMarkers[nearSpot._id];
      if(!existedMarker){
        // Initialize new markers
@@ -391,9 +339,9 @@ function findNearSpots(){
         label: (i+1).toString(),
         infowindow: locationInfoWindow,
         id: nearSpot._id,
-        title: nearSpot.name
+        title: nearSpot.name,
+        map: mapInstance
       });
-      marker.setMap(mapInstance);
       marker.addListener('click', function () {
          OpenInfo(this);
       });

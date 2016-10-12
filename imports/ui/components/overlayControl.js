@@ -13,14 +13,6 @@ Template.overlayControl.events({
     let map = GoogleMaps.maps.parkMap;
     map.instance.panTo(currentLatLng);
   },
-  "click .js-cancelSearch"(event){
-    $('#searchDiv .searchInputGroup').css('display','none');
-    $('.btnSearch').toggle();
-  },
-  "click .btnSearch"(event){
-    $('#searchDiv .searchInputGroup').css('display','inline');
-    $('.btnSearch').toggle();
-  },
   "click .btnList"(event){
 
     ToggleListView();
