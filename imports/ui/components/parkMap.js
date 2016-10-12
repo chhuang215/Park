@@ -9,6 +9,7 @@ import './parkMapGlobalFunctions.js';
 import './parkMap.html';
 import './parkingSpotList.js';
 import './parkingSpotDetail.js';
+import './distanceProgress.js';
 const DEFAULT_RADIUS = 250;
 const DRIVE_ONLY = 1;
 const WALK_ONLY = 2;
@@ -80,8 +81,6 @@ Template.parkMap.events({
 });
 
 Template.parkMap.onCreated(function (){
-
-//  GoogleMaps.load({key: 'AIzaSyCd-5haHDEEa8HjyaRaLq8aczxuwkP5ZMs', libraries: 'geometry,places' });
 
   var self = this;
 
@@ -160,7 +159,7 @@ Template.parkMap.onCreated(function (){
       // If the user long press a location, adds a new marker as new destination
       setTimeout(function(){
           if(mousedUp === false && !drag){
-            markerToSearchNearby.set(null);
+
             setNewDestination(e.latLng);
           }
       }, 500);
@@ -215,18 +214,6 @@ Template.parkMap.onCreated(function (){
           optimized: true,
           title: "Current location",
         });
-        // currentLocationMarker = new Marker({
-        //   position: new google.maps.LatLng(latLng.lat, latLng.lng),
-        //   map: map.instance,
-        //   icon: {
-        //       path: MAP_PIN,
-        //       fillColor: '#00CCBB',
-        //       fillOpacity: 1,
-        //       strokeColor: '',
-        //       strokeWeight: 0
-        //   },
-        //   map_icon_label: '<span class="map-icon map-icon-map-pin"></span>'
-        // });
 
         // Center and zoom the map view onto the current position.
         map.instance.setZoom(14);
@@ -288,7 +275,8 @@ function createCircleRadius(map, radius = DEFAULT_RADIUS, color = '#7BB2CA'){
  * Add marker on the map to set a new destination
  */
 function setNewDestination(latLng){
-
+  markerToSearchNearby.set(null);
+  changeInMarkerList.set(-1);
   let map = GoogleMaps.maps.parkMap;
 
   if(currentDestinationMarker){
@@ -324,17 +312,13 @@ function setNewDestination(latLng){
 
     google.maps.event.addListener(currentDestinationMarker,'drag', function(event){
       drag = true;
-      let m = Session.get("selectedParkingSpot");
-      Session.set("selectedParkingSpot", null);
-      Session.set("selectedParkingSpot", m);
+
       markerToSearchNearby.set(currentDestinationMarker);
     });
 
     google.maps.event.addListener(currentDestinationMarker,'dragend', function(event){
       drag = false;
-      let m = Session.get("selectedParkingSpot");
-      Session.set("selectedParkingSpot", null);
-      Session.set("selectedParkingSpot", m);
+
       markerToSearchNearby.set(currentDestinationMarker);
     });
   }
@@ -398,7 +382,7 @@ function findNearSpots(){
      locationInfoWindow.addListener('closeclick', function(){
        CloseInfo();
      });
-     //let existedMarkerId = CurrentVisibleSpotMarkerId.findOne(nearSpot._id);
+
      let existedMarker = currentVisibleSpotMarkers[nearSpot._id];
      if(!existedMarker){
        // Initialize new markers
@@ -429,8 +413,9 @@ function findNearSpots(){
   }
   if(currentVisibleSpotMarkers != tempVisibleMarker){
     currentVisibleSpotMarkers = tempVisibleMarker;
-    changeInMarkerList.set(Object.keys(currentVisibleSpotMarkers).length);
+    changeInMarkerList.set(-1);
   }
+  changeInMarkerList.set(Object.keys(currentVisibleSpotMarkers).length);
 }
 
 function beginDirection(spot, mode){

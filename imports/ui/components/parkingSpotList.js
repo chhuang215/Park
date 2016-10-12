@@ -5,6 +5,20 @@ import './parkMapGlobalFunctions.js';
 import './parkingSpotList.html';
 
 Template.parkingSpotList.helpers({
+
+
+});
+
+Template.parkingSpotListItem.helpers({
+  isSelected(){
+    let selectedParkingSpotId = Session.get("selectedParkingSpot");
+
+    if(this.id == selectedParkingSpotId){
+      return "active";
+    }
+
+    return "";
+  },
   getName(){
     let p = ParkingSpot.findOne({_id:this.id});
     if(!p) return;
@@ -14,16 +28,19 @@ Template.parkingSpotList.helpers({
     let p = ParkingSpot.findOne({_id:this.id});
     if(!p) return;
     let rating = p.rating;
-    let stars = [];
-    for (var i = 0; i < 5; i ++){
+    let stars = {};
+    for (var i = 1; i <= 5; i ++){
       if(rating >= 1.0){
           rating = rating - 1.0;
-          stars.push("fa-star");
+          stars["s"+i] = "fa-star";
+          //stars.push();
       }else if (rating >= 0.5){
-          stars.push("fa-star-half-o");
+          stars["s"+i] = "fa-star-half-o";
+        //  stars.push("fa-star-half-o");
           rating = 0;
       }else{
-        stars.push("fa-star-o");
+        stars["s"+i] = "fa-star-o";
+        //stars.push("fa-star-o");
       }
     }
     return stars;
@@ -34,21 +51,14 @@ Template.parkingSpotList.events({
   "click .js-closeList"(event){
     ToggleListView();
   },
-  "click #listOfParkingSpots a"(event){
-    let target =  event.currentTarget;
-    let id = target.id;
 
-    let parkingSpotMarkers = Template.currentData().parkingSpots;
-    let marker = null;
-    for(var i = 0; i < parkingSpotMarkers.length; i++){
-      //console.log(parkingSpotMarkers[i]);
-      if(parkingSpotMarkers[i].id == id){
-        marker = parkingSpotMarkers[i];
-        break;
-      }
-    }
+});
+
+Template.parkingSpotListItem.events({
+  "click a.list-group-item"(event){
 
     let map = GoogleMaps.maps.parkMap;
+    let marker = this;
     map.instance.panTo(marker.getPosition());
     OpenInfo(marker);
   }
@@ -57,10 +67,6 @@ Template.parkingSpotList.events({
 Template.parkingSpotList.onRendered(function(){
   this.autorun(function(){
 
-    let selectedParkingSpotId = Session.get("selectedParkingSpot");
-    $(".active").removeClass("active");
-    if(!selectedParkingSpotId) return;
 
-    $("#"+selectedParkingSpotId+".list-group-item").addClass("active");
   });
 });

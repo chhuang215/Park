@@ -2,21 +2,26 @@
 <div id="listOfParkingSpots">
   <!-- pull-left">...</div>
 <div class="pull-right"> -->
-  <button type="button" class="js-closeList close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <button type="button" class="js-closeList" aria-label="Close"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
 
   <ul class="list-group">
     {{#each parkingSpots}}
-
-    <a href="" id={{id}} class="list-group-item list-group-item-action">
-      {{this.label}}. {{getName}}
-      {{#each ratingStars}}
-          <i class="fa {{this}} ratingStar" aria-hidden="true"></i>
-      {{/each}}
-    </a>
+      {{>parkingSpotListItem}}
     {{/each}}
   </ul>
 </div>
 </template>
 
-<template name="parkMapListItem">
+<template name="parkingSpotListItem">
+  <a href="" id={{id}} class="list-group-item list-group-item-action {{isSelected}}">
+    {{this.label}}. {{getName}}
+    {{#with ratingStars}}
+        <i class="fa {{s1}} ratingStar" aria-hidden="true"></i>
+        <i class="fa {{s2}} ratingStar" aria-hidden="true"></i>
+        <i class="fa {{s3}} ratingStar" aria-hidden="true"></i>
+        <i class="fa {{s4}} ratingStar" aria-hidden="true"></i>
+        <i class="fa {{s5}} ratingStar" aria-hidden="true"></i>
+    {{/with}}
+
+  </a>
 </template>
