@@ -1,8 +1,3 @@
-#searchDiv{
-  position: fixed;
-  left: 1em;
-  top:1em;
-}
 
 #searchDiv .searchInputGroup{
   display:none;
@@ -32,7 +27,19 @@
   // width:auto;
 }
 
-.btnSetting{
+#searchDiv, .btnSearch{
+  position: fixed;
+  left: 1em;
+  top:1em;
+}
+
+.leftControls.btn{
+    background: transparent;
+    border: none !important;
+    font-size: 19px;
+}
+
+.btnSetting {
   position: fixed;
   left: 1em;
   top:4em;
