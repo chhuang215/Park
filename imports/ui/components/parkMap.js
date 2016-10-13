@@ -3,6 +3,7 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { GoogleMaps } from 'meteor/dburles:google-maps';
 
 import { Session } from 'meteor/session';
+import {Blaze} from 'meteor/blaze';
 import { ParkingSpot } from '/imports/api/ParkingSpot/ParkingSpot.js';
 import '/imports/api/map-icons/map-icons.js';
 import './parkMapGlobalFunctions.js';
@@ -10,6 +11,7 @@ import './parkMap.html';
 import './parkingSpotList.js';
 import './parkingSpotDetail.js';
 import './distanceProgress.js';
+import './parkingSpotInfoWindow.html';
 const DEFAULT_RADIUS = 250;
 const DRIVE_ONLY = 1;
 const WALK_ONLY = 2;
@@ -315,18 +317,18 @@ function findNearSpots(){
   // Display near parking spot markers
   for (var i = 0; i < nearSpots.length; i++) {
     let nearSpot = nearSpots[i];
+    Blaze
+    let contentInfo = Blaze.toHTMLWithData(Template.parkingSpotInfoWindow, function(){
+      return {
+        id: "p"+i,
+        info: nearSpot.info,
+        spotId: nearSpot._id
+      };
+    });
 
-    let contentInfo =
-      '<div id=p'+i+'>'+
-       '<p>'+ nearSpot.info +'</p>'+
-       '<br />'+
-       '<button class="btn btn-sm btn-warning btnNavToParkingSpot" id="'+nearSpot._id+'">Click here to fking navigate</button>' +
-       '<br />'+
-       '<button class="btn btn-sm btn-success btnNavToSpotAndWalk" id="'+nearSpot._id+'">Click here to park and walk</button>'+
-       '<button class="btn btn-sm" data-toggle="modal" data-target="#test">Show detail</button>'+
-      '</div>' ;
     let locationInfoWindow = new google.maps.InfoWindow({
-     content: contentInfo
+     content: contentInfo,
+     disableAutoPan: true
     });
     locationInfoWindow.addListener('closeclick', function() {
       CloseInfo();
