@@ -1,7 +1,7 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { GoogleMaps } from 'meteor/dburles:google-maps';
-
+import { Weather } from 'meteor/selaias:meteor-simpleweather';
 import { Session } from 'meteor/session';
 import {Blaze} from 'meteor/blaze';
 import { ParkingSpot } from '/imports/api/ParkingSpot/ParkingSpot.js';
@@ -16,7 +16,7 @@ const DEFAULT_RADIUS = 250;
 const DRIVE_ONLY = 1;
 const WALK_ONLY = 2;
 const DRIVE_AND_WALK = 3;
-
+const DEFAULT_ZOOM = 14;
 var directionsService = null;
 var directionsDisplayDrive = null;
 var directionsDisplayWalk = null;
@@ -33,6 +33,8 @@ var drag = false;
 var changeInMarkerList = new ReactiveVar(0);
 var currentVisibleSpotMarkers = {};
 
+var mapZoom, mapCenter = null;
+
 Template.parkMap.helpers({
   mapOptions() {
     // check if maps API has loaded
@@ -40,8 +42,8 @@ Template.parkMap.helpers({
       // Map initialization options
       return {
         disableDefaultUI: true,
-        center: new google.maps.LatLng(51.0440916, -114.1900152),
-        zoom: 8,
+        center: mapCenter ? mapCenter : new google.maps.LatLng(51.0440916, -114.1900152),
+        zoom: mapZoom ? mapZoom : 8,
         zoomControl: true,
         rotateControl: true,
         rotateControlOptions:  {
@@ -133,25 +135,31 @@ Template.parkMap.onCreated(function (){
       drag = false;
     });
 
+    mapInstance.addListener('zoom_changed', function(e) {
+      mapZoom =  this.getZoom();
+
+    });
+
+    mapInstance.addListener('center_changed', function(e) {
+      mapCenter = this.getCenter();
+    });
 
     //-----------FINISH Initialize map's listener--------------
 
     //Initialize display of current location and location to search spots near by
-    let latLng = null;
-
     radiusCircle = createCircleRadius(map.instance, DEFAULT_RADIUS);
-
+    console.log('created');
     // Create and move the marker when latLng changes.
     self.autorun(function() {
+
       //Initialize display of current location and location to search spots near by
       let latLng = Session.get('currentLocation');
-      if (latLng == null) return;
 
+      if (latLng == null) return;
       // Mark current location
       if (!currentLocationMarker) {
         currentLocationMarker = new google.maps.Marker({
           position: new google.maps.LatLng(latLng.lat, latLng.lng),
-          map: map.instance,
           //label: "U",
           clickable: false,
           cursor: "pointer",
@@ -166,12 +174,20 @@ Template.parkMap.onCreated(function (){
           title: "Current location",
         });
 
-        // Center and zoom the map view onto the current position.
-        map.instance.setZoom(14);
-        map.instance.setCenter(currentLocationMarker.getPosition());
+
       } else {
         currentLocationMarker.setPosition(latLng);
       }
+
+      // Center and zoom the map view onto the current position or previous view.
+      map.instance.setZoom(mapZoom ? mapZoom : DEFAULT_ZOOM);
+      map.instance.setCenter(mapCenter ? mapCenter : currentLocationMarker.getPosition());
+
+      if(currentLocationMarker.map != map.instance){
+        currentLocationMarker.setMap(map.instance);
+        if(currentDestinationMarker) currentDestinationMarker.setMap(map.instance);
+      }
+
 
       // Get current marker for searching nearby parking spots
       let markerToSetRadiusAndSearchNear = markerToSearchNearby.get();
@@ -192,13 +208,16 @@ Template.parkMap.onCreated(function (){
 });
 
 Template.parkMap.onRendered(function() {
-
-
 });
 
 //-----------------------------------------//
 //---------------FUNCTIONS-----------------//
 //-----------------------------------------//
+
+function initMap(map){
+
+}
+
 /**
  * Generate a new circle overlay with default radius=500
  */
@@ -207,7 +226,7 @@ function createCircleRadius(map, radius = DEFAULT_RADIUS, color = '#7BB2CA'){
   let circle = new google.maps.Circle({
     map: map,
     radius: radius,    // 500 km default
-    strokeWeight: .5,
+    strokeWeight: 0.5,
     fillColor: '#7BB2CA',
     fillOpacity: 0.2,
     clickable: false,
@@ -226,7 +245,7 @@ function createCircleRadius(map, radius = DEFAULT_RADIUS, color = '#7BB2CA'){
  * Add marker on the map to set a new destination
  */
 function setNewDestination(latLng){
-  markerToSearchNearby.set(null);
+  //markerToSearchNearby.set(null);
   changeInMarkerList.set(-1);
   let map = GoogleMaps.maps.parkMap;
 
@@ -239,8 +258,8 @@ function setNewDestination(latLng){
       position:latLng,
       draggable: true,
       label: 'D',
-      map: map.instance,
-      title: latLng.lat() + ','+latLng.lng()
+      title: latLng.lat() + ','+latLng.lng(),
+      map: map.instance
     });
 
     google.maps.event.addListener(currentDestinationMarker,'mousedown', function(e) {
@@ -273,8 +292,8 @@ function setNewDestination(latLng){
       markerToSearchNearby.set(currentDestinationMarker);
     });
   }
-  markerToSearchNearby.set(currentDestinationMarker);
 
+  markerToSearchNearby.set(currentDestinationMarker);
 }
 
 /**
@@ -317,7 +336,6 @@ function findNearSpots(){
   // Display near parking spot markers
   for (var i = 0; i < nearSpots.length; i++) {
     let nearSpot = nearSpots[i];
-    Blaze
     let contentInfo = Blaze.toHTMLWithData(Template.parkingSpotInfoWindow, function(){
       return {
         id: "p"+i,
@@ -352,6 +370,7 @@ function findNearSpots(){
      }
      else{
        existedMarker.setLabel((i+1).toString());
+       if(existedMarker.map != mapInstance) existedMarker.setMap(mapInstance);
        tempVisibleMarker[nearSpot._id] = existedMarker;
      }
   }

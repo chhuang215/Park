@@ -27,7 +27,7 @@ ToggleListView = function(){
   let directionSlide = 'left';
   let listWidth = $("#listOfParkingSpots").width();
   let listHeight = $("#listOfParkingSpots").height();
-  console.log("listheight " + listHeight);
+
   let heightToChange , widthToChange = 0;
   if($(window).width() >= 768){
     directionSlide = 'left';
@@ -59,7 +59,7 @@ ToggleListView = function(){
 //  $(".leftControls").animate({bottom:offsetPlusMinusBottom},100);
   $(".map-container").animate({left:offsetPlusMinusLeft},100, function(){
     //console.log(this == $(".map-container"));
-    console.log('width animeate ' + mapWidthChange);
+
     $(this).css('width', mapWidthChange);
     $(this).css('height', mapHeightChange);
     google.maps.event.trigger(map.instance, "resize");
