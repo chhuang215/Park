@@ -8,12 +8,7 @@
 
 }
 
-// #searchDiv .searchInputGroup{
-//   display:none;
-//   padding:0;
-//   // width:auto;
-// }
-#searchDiv .searchInputGroup .input-group{
+#searchDiv .form-group .input-group{
   width:82%;
   float:left;
   // width:auto;
@@ -43,7 +38,7 @@
 #searchDiv button{
   border:0;
   background:transparent;
-  font-size:19px;
+  font-size:$font-size-control;
   padding-top: 0px;
   padding-bottom: 0px;
 }

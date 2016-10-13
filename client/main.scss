@@ -1,3 +1,6 @@
+
+/*Global */
+@import "{}/imports/ui/stylesheets/style.scss";
 /* Page and components*/
 @import "{}/imports/ui/pages/mainPage.scss";
 @import "{}/imports/ui/components/parkMap.scss";
@@ -8,6 +11,5 @@
 /* CSS declarations go here */
 @import "{}/imports/ui/stylesheets/map-icons.scss";
 
-/*Global */
-@import "{}/imports/ui/stylesheets/style.scss";
+
 // @import "{}/node_modules/material-design-icons/iconfont/material-icons.css";
