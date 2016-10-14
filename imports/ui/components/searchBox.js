@@ -21,10 +21,6 @@ Template.searchBox.events({
 
     $('.btnSearch').toggle();
   },
-  "click .js-setAsDestination"(event){
-    //TODO: Actually set destination marker to searched location
-    console.log('clicky');
-  }
 });
 Template.searchBox.onCreated(function(){
 });
@@ -69,10 +65,10 @@ Template.searchBox.onRendered(function(){
             map: mapInstance,
             icon: {
               url: place.icon,
-              size: new google.maps.Size(26, 26),
+              size: new google.maps.Size(22, 22),
               origin: new google.maps.Point(0, 0),
-              anchor: new google.maps.Point(0, 13),
-              scaledSize: new google.maps.Size(26, 26)
+              anchor: new google.maps.Point(0, 11),
+              scaledSize: new google.maps.Size(22, 22)
             },
             infowindow: locationInfoWindow,
             title: place.name,

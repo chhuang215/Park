@@ -4,7 +4,7 @@ import { GoogleMaps } from 'meteor/dburles:google-maps';
 import "./searchedMarkerInfoWindow.html";
 
 Template.searchedMarkerInfoWindow.events({
-  "click .js-setAsDestination"(event){
-    console.log('clicky');
-  }
+  // "click .js-setAsDestination"(event){
+  //   console.log('clicky');
+  // }
 });

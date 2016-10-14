@@ -1,28 +1,13 @@
-#searchDiv .form-group .input-group{
-  width:89%;
-  float:left;
-  // width:auto;
-}
+$searchbox-border-radius : 50px;
+$searchbox-background: rgba(255, 255, 255, 0.5);
+$searchbox-font-color: white;
 
-#searchDiv .input-group-addon{
-  background: white !important;
-  padding-top: 0px;
-  padding-bottom: 0px;
-}
-#searchDiv .tbSearch{
-  border-right:0;
-	box-shadow:0 0 0;
-	border-color:#ccc;
-  // width:auto;
-}
+#searchDiv{
+  padding: 6px 0px;
+  position: absolute;
+  left: 1em;
+  top: .5em;
 
-#searchDiv .js-cancelSearch{
-  color:red;
-  padding-left: 2px;
-  padding-right: 2px;
-  font-size: 25px;
-  float: left;
-  // width:auto;
 }
 
 #searchDiv button{
@@ -33,12 +18,42 @@
   padding-bottom: 0px;
 }
 
-#searchDiv{
-  padding: 6px 0px;
-  position: absolute;
-  left: 1em;
-  top: .5em;
+#searchDiv .form-group .input-group{
+  width:89%;
+  float:left;
+  // width:auto;
 }
+
+#searchDiv .input-group-addon{
+  background: $searchbox-background !important;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-top-right-radius: $searchbox-border-radius;
+  border-bottom-right-radius: $searchbox-border-radius;
+}
+
+
+
+#searchDiv .tbSearch{
+  background: $searchbox-background;
+  border-right:0;
+	box-shadow:0 0 0;
+	border-color:#ccc;
+  border-top-left-radius: $searchbox-border-radius;
+  border-bottom-left-radius: $searchbox-border-radius;
+
+  // width:auto;
+}
+
+#searchDiv .js-cancelSearch{
+  color:red;
+  padding-left: 2px;
+  padding-right: 2px;
+  font-size: 23px;
+  float: left;
+  // width:auto;
+}
+
 
 .btnSearchClose{
   position: absolute;

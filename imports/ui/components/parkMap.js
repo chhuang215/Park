@@ -6,7 +6,7 @@ import { Weather } from 'meteor/selaias:meteor-simpleweather';
 import { Session } from 'meteor/session';
 import {Blaze} from 'meteor/blaze';
 import { ParkingSpot } from '/imports/api/ParkingSpot/ParkingSpot.js';
-import '/imports/api/map-icons/map-icons.js';
+//import '/imports/api/map-icons/map-icons.js';
 import './parkMapGlobalFunctions.js';
 import './parkMap.html';
 import './parkingSpotList.js';
@@ -17,6 +17,12 @@ import './parkingSpotInfoWindow.html';
 const DEFAULT_RADIUS = 250;
 const DEFAULT_ZOOM = 14;
 const DEFAULT_CITY_ZOOM = 8;
+var MarkerToSearchNearby = new ReactiveVar(null);
+var ChangeInMarkerList = new ReactiveVar(0);
+
+var radiusCircle = null;
+
+var currentVisibleSpotMarkers = {};
 
 //radiusCircle = null;
 
@@ -65,18 +71,22 @@ Template.parkMap.helpers({
   }
 });
 
-// Template.parkMap.events({
-//   'click .btnNavToParkingSpot'(event) {
-//
-//     let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
-//     BeginDirection(spot , DRIVE_ONLY);
-//   },
-//   'click .btnNavToSpotAndWalk'(event){
-//
-//     let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
-//     BeginDirection(spot,  DRIVE_AND_WALK);
-//   }
-// });
+Template.parkMap.events({
+  // 'click .btnNavToParkingSpot'(event) {
+  //   console.log('clicky');
+  //   let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
+  //   BeginDirection(spot , DRIVE_ONLY);
+  // },
+  // 'click .btnNavToSpotAndWalk'(event){
+  //
+  //   let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
+  //   BeginDirection(spot,  DRIVE_AND_WALK);
+  // }
+  'click .js-setAsDestination'(event){
+    //FindNearSpots();
+    console.log(this.name);
+  }
+});
 
 Template.parkMap.onCreated(function (){
 
@@ -208,11 +218,6 @@ Template.parkMap.onRendered(function() {
 //-----------------------------------------//
 //---------------FUNCTIONS-----------------//
 //-----------------------------------------//
-
-function initMap(map){
-
-}
-
 /**
  * Generate a new circle overlay with default radius=500
  */
@@ -234,6 +239,97 @@ function createCircleRadius(map, radius = DEFAULT_RADIUS, color = '#7BB2CA'){
   });
 
   return circle;
+}
+
+/**
+ * Find near parking spot with provided center location
+ */
+function FindNearSpots(){
+  let map = GoogleMaps.maps.parkMap;
+  let mapInstance = map.instance;
+  let marker = MarkerToSearchNearby.get();
+  let latLng = marker.getPosition();
+  let lat = latLng.lat();
+  let lng = latLng.lng();
+
+  // Get near parking spots within the radius
+  let nearSpots = ParkingSpot.find({
+    loc: {
+      $near: {
+        $geometry: {
+          type: "Point" ,
+          coordinates: [ lng , lat ]
+        },
+        $maxDistance: radiusCircle.getRadius()
+      }
+    }
+  }).fetch();
+
+  // Clear visible markers if not at nearby
+  if(nearSpots.length === 0){
+  //  CurrentVisibleSpotMarkerId.remove({});
+    for(let i in currentVisibleSpotMarkers){
+      currentVisibleSpotMarkers[i].setMap(null);
+    }
+    currentVisibleSpotMarkers = {};
+    ChangeInMarkerList.set(0);
+    resetDirectionsDisplay();
+    return;
+  }
+
+  let tempVisibleMarker = {};
+  // Display near parking spot markers
+  for (let i = 0; i < nearSpots.length; i++) {
+    let nearSpot = nearSpots[i];
+    let contentInfo = Blaze.toHTMLWithData(Template.parkingSpotInfoWindow, {
+      id: "p"+i,
+      info: nearSpot.info,
+      spotId: nearSpot._id,
+      name : nearSpot.name,
+    });
+
+    let locationInfoWindow = new google.maps.InfoWindow({
+     content: contentInfo,
+     disableAutoPan: true
+    });
+    locationInfoWindow.addListener('closeclick', function() {
+      CloseInfo();
+    });
+    let existedMarker = currentVisibleSpotMarkers[nearSpot._id];
+    if (!existedMarker){
+       // Initialize new markers
+      let marker = new google.maps.Marker({
+        position: nearSpot.position,
+        label: (i+1).toString(),
+        infowindow: locationInfoWindow,
+        id: nearSpot._id,
+        title: nearSpot.name,
+        map: mapInstance
+      });
+      marker.addListener('click', function () {
+         OpenInfo(this);
+      });
+      // CurrentVisibleSpotMarkerId.insert({_id:nearSpot._id});
+      tempVisibleMarker[nearSpot._id] = marker;
+    }
+    else{
+      existedMarker.setLabel((i+1).toString());
+      if(existedMarker.map != mapInstance) existedMarker.setMap(mapInstance);
+      tempVisibleMarker[nearSpot._id] = existedMarker;
+    }
+  }
+  for(var j in currentVisibleSpotMarkers){
+    if(!tempVisibleMarker[j]){
+      currentVisibleSpotMarkers[j].setMap(null);
+      if(currentVisibleSpotMarkers[j].infowindow == OpenedInfoWindow) CloseInfo();
+      delete currentVisibleSpotMarkers[j];
+    }
+  }
+  if(currentVisibleSpotMarkers != tempVisibleMarker){
+    currentVisibleSpotMarkers = tempVisibleMarker;
+    ChangeInMarkerList.set(-1);
+  }
+  ChangeInMarkerList.set(Object.keys(currentVisibleSpotMarkers).length);
 }
 
 /**
