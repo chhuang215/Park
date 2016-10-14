@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 import { Template } from 'meteor/templating';
 import { GoogleMaps } from 'meteor/dburles:google-maps';
 import "./menuBar.html";
@@ -34,7 +35,7 @@ Template.menuBar.onRendered(function(){
       searchBox.addListener('places_changed', function() {
         var places = searchBox.getPlaces();
         //console.log(places);
-        if (places.length == 0) {
+        if (places.length === 0) {
           return;
         }
         let bounds = new google.maps.LatLngBounds();
@@ -73,7 +74,7 @@ Template.menuBar.onRendered(function(){
           });
           m.addListener('click', function(){
             OpenInfo(this);
-          })
+          });
 
           searchedMarkers.push(m);
           if (place.geometry.viewport) {

@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 import { Template } from 'meteor/templating';
 import { GoogleMaps } from 'meteor/dburles:google-maps';
 import { ParkingSpot } from '/imports/api/ParkingSpot/ParkingSpot.js';

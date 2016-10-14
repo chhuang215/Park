@@ -3,12 +3,15 @@
   <div class="map-container">
 
     {{> googleMap name="parkMap" options=mapOptions}}
+    {{>distanceProgress}}
   </div>
-  {{>distanceProgress}}
-  <!-- {{#with getParkingSpotList}} -->
-    {{> parkingSpotList parkingSpots=getParkingSpotList}}
-    {{> parkingSpotDetail }}
-  <!-- {{/with}} -->
+
+  {{#with getParkingSpotList}}
+
+    <!-- ParkingSpots: array of parking spots -->
+    {{> parkingSpotList }}
+    {{> parkingSpotDetail}}
+  {{/with}}
   <!-- {{> parkingSpotList parkingSpots=getParkingSpotList}} -->
   <!-- {{> parkingSpotDetail}} -->
 </template>

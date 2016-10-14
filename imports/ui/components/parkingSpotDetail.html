@@ -1,11 +1,11 @@
 <template name="parkingSpotDetail">
-  <!-- {{#with getSelected}} -->
+  {{#with getSelected}}
     <div id="test" class="modal fade" tabindex="-1" role="dialog">
      <div class="modal-dialog" role="document">
        <div class="modal-content">
          <div class="modal-header">
            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-           <h4 class="modal-title">Hi title</h4>
+           <h4 class="modal-title">{{getName}}</h4>
          </div>
          <div class="modal-body">
            <div class="row">
@@ -13,14 +13,17 @@
                <img src="/img/parkingSpot/test.png" alt="" class="img-rounded img-responsive center-block"/>
              </div>
              <div class="col-xs-8">
-               Rating here <br>
-               <i class="fa fa-star-half-o ratingStar" aria-hidden="true"></i>
-               <i class="fa fa-star-half-o ratingStar" aria-hidden="true"></i>
-               <i class="fa fa-star-half-o ratingStar" aria-hidden="true"></i>
-               <i class="fa fa-star-half-o ratingStar" aria-hidden="true"></i>
-               <i class="fa fa-star-half-o ratingStar" aria-hidden="true"></i>
-               <br>
-               0 / 5
+               Rating:<br>
+               {{#with rating}}
+                 <i class="fa {{s1}} ratingStar" aria-hidden="true"></i>
+                 <i class="fa {{s2}} ratingStar" aria-hidden="true"></i>
+                 <i class="fa {{s3}} ratingStar" aria-hidden="true"></i>
+                 <i class="fa {{s4}} ratingStar" aria-hidden="true"></i>
+                 <i class="fa {{s5}} ratingStar" aria-hidden="true"></i>
+
+                 <br>
+                {{ratingNumber}} / 5
+               {{/with}}
              </div>
            </div>
            <div class="row">
@@ -38,12 +41,15 @@
 
          </div>
          <div class="modal-footer">
-           <button type="button" class="btn " data-dismiss="modal">Direction to here</button>
-           <button type="button" class="btn btn-success" data-dismiss="modal">Direction to here &#38; to destination</button>
+           <button type="button" class="btn btn-default js-directionToSpot" data-dismiss="modal"><i class="material-icons">directions</i><i class="material-icons">directions_car</i></button>
+           <button type="button" class="btn btn-success js-directionToSpotAndWalk" data-dismiss="modal">
+             <i class="material-icons">directions</i><i class="material-icons">directions_car</i>
+             <i class="fa fa-long-arrow-right"></i><i class="material-icons">directions_walk</i>
+           </button>
            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
          </div>
        </div><!-- /.modal-content -->
      </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
-  <!-- {{/with}} -->
+  {{/with}}
 </template>

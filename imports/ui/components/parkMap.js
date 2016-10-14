@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/ /* jshint loopfunc:true */
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { GoogleMaps } from 'meteor/dburles:google-maps';
@@ -13,18 +14,13 @@ import './parkingSpotDetail.js';
 import './distanceProgress.js';
 import './parkingSpotInfoWindow.html';
 const DEFAULT_RADIUS = 250;
-const DRIVE_ONLY = 1;
-const WALK_ONLY = 2;
-const DRIVE_AND_WALK = 3;
-const DEFAULT_ZOOM = 14;
-var directionsService = null;
-var directionsDisplayDrive = null;
-var directionsDisplayWalk = null;
 
-var currentDestinationMarker = null;
+const DEFAULT_ZOOM = 14;
+
+
 
 var radiusCircle = null;
-var currentLocationMarker = null;
+
 
 var markerToSearchNearby = new ReactiveVar(null);
 var mouseup = false;
@@ -67,22 +63,22 @@ Template.parkMap.helpers({
 
     for (var key in currentVisibleSpotMarkers) arryLst.push(currentVisibleSpotMarkers[key]);
 
-    return arryLst;
+    return {parkingSpots:arryLst};
   }
 });
 
-Template.parkMap.events({
-  'click .btnNavToParkingSpot'(event) {
-
-    let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
-    beginDirection(spot , DRIVE_ONLY);
-  },
-  'click .btnNavToSpotAndWalk'(event){
-
-    let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
-    beginDirection(spot,  DRIVE_AND_WALK);
-  }
-});
+// Template.parkMap.events({
+//   'click .btnNavToParkingSpot'(event) {
+//
+//     let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
+//     beginDirection(spot , DRIVE_ONLY);
+//   },
+//   'click .btnNavToSpotAndWalk'(event){
+//
+//     let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
+//     beginDirection(spot,  DRIVE_AND_WALK);
+//   }
+// });
 
 Template.parkMap.onCreated(function (){
 
@@ -92,15 +88,15 @@ Template.parkMap.onCreated(function (){
     let mapInstance = map.instance;
 
     //-----------Initialize direction service--------------
-    directionsService = new google.maps.DirectionsService();
-    directionsDisplayDrive = new google.maps.DirectionsRenderer();
-    directionsDisplayDrive.setOptions( { suppressMarkers: true , preserveViewport: true} );
-    directionsDisplayWalk = new google.maps.DirectionsRenderer({
+    DirectionsService = new google.maps.DirectionsService();
+    DirectionsDisplayDrive = new google.maps.DirectionsRenderer();
+    DirectionsDisplayDrive.setOptions( { suppressMarkers: true , preserveViewport: true} );
+    DirectionsDisplayWalk = new google.maps.DirectionsRenderer({
       polylineOptions: {
         strokeColor: "green",
       }
     });
-    directionsDisplayWalk.setOptions( { suppressMarkers: true, preserveViewport: true } );
+    DirectionsDisplayWalk.setOptions( { suppressMarkers: true, preserveViewport: true } );
     //-----------FINISH Initialize direction service--------------
 
 
@@ -155,7 +151,7 @@ Template.parkMap.onCreated(function (){
       //Initialize display of current location and location to search spots near by
       let latLng = Session.get('currentLocation');
 
-      if (latLng == null) return;
+      if (latLng === null) return;
       // Mark current location
       if (!currentLocationMarker) {
         currentLocationMarker = new google.maps.Marker({
@@ -173,9 +169,8 @@ Template.parkMap.onCreated(function (){
           optimized: true,
           title: "Current location",
         });
-
-
-      } else {
+      }
+      else {
         currentLocationMarker.setPosition(latLng);
       }
 
@@ -193,7 +188,7 @@ Template.parkMap.onCreated(function (){
       let markerToSetRadiusAndSearchNear = markerToSearchNearby.get();
 
       // If no marker is set, default to current location
-      if(markerToSetRadiusAndSearchNear == null) {
+      if(markerToSetRadiusAndSearchNear === null) {
         markerToSearchNearby.set(currentLocationMarker);
         markerToSetRadiusAndSearchNear = currentLocationMarker;
       }
@@ -323,7 +318,7 @@ function findNearSpots(){
   // Clear visible markers if not at nearby
   if(nearSpots.length === 0){
   //  CurrentVisibleSpotMarkerId.remove({});
-    for(var i in currentVisibleSpotMarkers){
+    for(let i in currentVisibleSpotMarkers){
       currentVisibleSpotMarkers[i].setMap(null);
     }
     currentVisibleSpotMarkers = {};
@@ -334,14 +329,13 @@ function findNearSpots(){
 
   let tempVisibleMarker = {};
   // Display near parking spot markers
-  for (var i = 0; i < nearSpots.length; i++) {
+  for (let i = 0; i < nearSpots.length; i++) {
     let nearSpot = nearSpots[i];
-    let contentInfo = Blaze.toHTMLWithData(Template.parkingSpotInfoWindow, function(){
-      return {
-        id: "p"+i,
-        info: nearSpot.info,
-        spotId: nearSpot._id
-      };
+    let contentInfo = Blaze.toHTMLWithData(Template.parkingSpotInfoWindow, {
+      id: "p"+i,
+      info: nearSpot.info,
+      spotId: nearSpot._id,
+      name : nearSpot.name,
     });
 
     let locationInfoWindow = new google.maps.InfoWindow({
@@ -351,8 +345,8 @@ function findNearSpots(){
     locationInfoWindow.addListener('closeclick', function() {
       CloseInfo();
     });
-     let existedMarker = currentVisibleSpotMarkers[nearSpot._id];
-     if(!existedMarker){
+    let existedMarker = currentVisibleSpotMarkers[nearSpot._id];
+    if (!existedMarker){
        // Initialize new markers
       let marker = new google.maps.Marker({
         position: nearSpot.position,
@@ -367,16 +361,17 @@ function findNearSpots(){
       });
       // CurrentVisibleSpotMarkerId.insert({_id:nearSpot._id});
       tempVisibleMarker[nearSpot._id] = marker;
-     }
-     else{
-       existedMarker.setLabel((i+1).toString());
-       if(existedMarker.map != mapInstance) existedMarker.setMap(mapInstance);
-       tempVisibleMarker[nearSpot._id] = existedMarker;
-     }
+    }
+    else{
+      existedMarker.setLabel((i+1).toString());
+      if(existedMarker.map != mapInstance) existedMarker.setMap(mapInstance);
+      tempVisibleMarker[nearSpot._id] = existedMarker;
+    }
   }
   for(var j in currentVisibleSpotMarkers){
     if(!tempVisibleMarker[j]){
       currentVisibleSpotMarkers[j].setMap(null);
+      if(currentVisibleSpotMarkers[j].infowindow == OpenedInfoWindow) CloseInfo();
       delete currentVisibleSpotMarkers[j];
     }
   }
@@ -385,94 +380,4 @@ function findNearSpots(){
     changeInMarkerList.set(-1);
   }
   changeInMarkerList.set(Object.keys(currentVisibleSpotMarkers).length);
-}
-
-function beginDirection(spot, mode){
-  CloseInfo();
-  resetDirectionsDisplay();
-  Session.set('direction', null)
-  let fromLocation = Session.get('currentLocation');
-  let toLocation = spot.position;
-  if(mode == DRIVE_ONLY){
-    driveToDestination(fromLocation,toLocation);
-  } else if(mode == DRIVE_AND_WALK){
-    driveToDestination(fromLocation,toLocation);
-    if(!currentDestinationMarker) {
-      return;
-    }
-    fromLocation = toLocation;
-    toLocation = currentDestinationMarker.getPosition();
-    walkToDestination(fromLocation, toLocation);
-  } else if(mode == WALK_ONLY){
-
-  }
-}
-
-
-function driveToDestination(fromLocation, toLocation){
-
-  let mapInstance = GoogleMaps.maps.parkMap.instance;
-
-  directionsDisplayDrive.setMap(mapInstance);
-
-  let request = {
-    origin: fromLocation,
-    destination: toLocation,
-    travelMode: 'DRIVING',
-    drivingOptions: {
-      departureTime: new Date(Date.now()),
-      trafficModel: 'optimistic',
-    },
-    provideRouteAlternatives: true
-  };
-
-  directionsService.route(request, function(result, status) {
-    if (status == 'OK') {
-      directionsDisplayDrive.setDirections(result);
-
-      directionDriveDuration = result.routes[0].legs[0].duration;
-      let d = Session.get('direction');
-      if(!d){
-        d = {};
-      }
-      d['driveVal'] = directionDriveDuration.value;
-      d['driveText'] = directionDriveDuration.text;
-      Session.set('direction', d);
-
-    }
-  });
-}
-
-function walkToDestination(fromLocation, toLocation){
-  let mapInstance = GoogleMaps.maps.parkMap.instance;
-
-  directionsDisplayWalk.setMap(mapInstance);
-
-  let request = {
-    origin: fromLocation,
-    destination: toLocation,
-    travelMode: 'WALKING',
-  };
-
-  directionsService.route(request, function(result, status) {
-    if (status == 'OK') {
-      directionsDisplayWalk.setDirections(result);
-
-      let directionWalkDuration = result.routes[0].legs[0].duration;
-      let d = Session.get('direction');
-      if(!d){
-        d = {};
-      }
-      d['walkVal'] = directionWalkDuration.value;
-      d['walkText'] = directionWalkDuration.text;
-      Session.set('direction', d);
-
-    }
-  });
-}
-
-function resetDirectionsDisplay(){
-  directionsDisplayDrive.setMap(null);
-  directionsDisplayWalk.setMap(null);
-  Session.set('direction', null);
 }
