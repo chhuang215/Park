@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 import { Template } from 'meteor/templating';
 import './distanceProgress.html';
 
@@ -6,8 +7,8 @@ Template.distanceProgress.helpers({
     let direction = Session.get('direction');
     if(!direction) return null;
 
-    let driveVal = direction['driveVal'];
-    let walkVal = direction['walkVal'];
+    let driveVal = direction.driveVal;
+    let walkVal = direction.walkVal;
 
     if((!driveVal || driveVal <= 0) && (!walkVal || walkVal <= 0)){
 
@@ -33,8 +34,8 @@ Template.distanceProgress.helpers({
       drivePercentage = 17;
     }
 
-    direction['drivePercentage'] = drivePercentage;
-    direction['walkPercentage'] = walkPercentage;
+    direction.drivePercentage = drivePercentage;
+    direction.walkPercentage = walkPercentage;
 
     return direction;
   }

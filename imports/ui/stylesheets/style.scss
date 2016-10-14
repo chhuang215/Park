@@ -5,7 +5,14 @@ $font-size-control: 19px;
 }
 
 .btn-transparent{
+  color: #333;
   background: transparent;
   border: none !important;
   font-size: $font-size-control;
+  outline:0px !important;
+  -webkit-appearance:none;
+  &:hover, :active{
+    color: rgba(#333333, 0.76);
+    text-shadow: 1px 1px 6px rgba(#919191, 0.74);
+  }
 }
