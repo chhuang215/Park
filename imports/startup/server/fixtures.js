@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 import { Meteor } from 'meteor/meteor';
 import { ParkingSpot } from '../../api/ParkingSpot/ParkingSpot.js';
 

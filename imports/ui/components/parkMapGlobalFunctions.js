@@ -1,4 +1,8 @@
-/*jshint esversion: 6*/
+/*jshint esversion: 6*/ /* jshint loopfunc:true */
+import { ParkingSpot } from '/imports/api/ParkingSpot/ParkingSpot.js';
+MarkerToSearchNearby = new ReactiveVar(null);
+ChangeInMarkerList = new ReactiveVar(0);
+
 DRIVE_ONLY = 1;
 WALK_ONLY = 2;
 DRIVE_AND_WALK = 3;
@@ -8,6 +12,9 @@ DirectionsDisplayWalk = null;
 
 currentLocationMarker = null;
 currentDestinationMarker = null;
+radiusCircle = null;
+
+currentVisibleSpotMarkers = {};
 
 OpenedInfoWindow = null;
 
@@ -79,8 +86,99 @@ ToggleListView = function(){
 //  if(OpenedInfoWindow) OpenedInfoWindow.open();
 };
 
+/**
+ * Find near parking spot with provided center location
+ */
+FindNearSpots = function(){
+  let map = GoogleMaps.maps.parkMap;
+  let mapInstance = map.instance;
+  let marker = MarkerToSearchNearby.get();
+  let latLng = marker.getPosition();
+  let lat = latLng.lat();
+  let lng = latLng.lng();
+
+  // Get near parking spots within the radius
+  let nearSpots = ParkingSpot.find({
+    loc: {
+      $near: {
+        $geometry: {
+          type: "Point" ,
+          coordinates: [ lng , lat ]
+        },
+        $maxDistance: radiusCircle.getRadius()
+      }
+    }
+  }).fetch();
+
+  // Clear visible markers if not at nearby
+  if(nearSpots.length === 0){
+  //  CurrentVisibleSpotMarkerId.remove({});
+    for(let i in currentVisibleSpotMarkers){
+      currentVisibleSpotMarkers[i].setMap(null);
+    }
+    currentVisibleSpotMarkers = {};
+    ChangeInMarkerList.set(0);
+    resetDirectionsDisplay();
+    return;
+  }
+
+  let tempVisibleMarker = {};
+  // Display near parking spot markers
+  for (let i = 0; i < nearSpots.length; i++) {
+    let nearSpot = nearSpots[i];
+    let contentInfo = Blaze.toHTMLWithData(Template.parkingSpotInfoWindow, {
+      id: "p"+i,
+      info: nearSpot.info,
+      spotId: nearSpot._id,
+      name : nearSpot.name,
+    });
+
+    let locationInfoWindow = new google.maps.InfoWindow({
+     content: contentInfo,
+     disableAutoPan: true
+    });
+    locationInfoWindow.addListener('closeclick', function() {
+      CloseInfo();
+    });
+    let existedMarker = currentVisibleSpotMarkers[nearSpot._id];
+    if (!existedMarker){
+       // Initialize new markers
+      let marker = new google.maps.Marker({
+        position: nearSpot.position,
+        label: (i+1).toString(),
+        infowindow: locationInfoWindow,
+        id: nearSpot._id,
+        title: nearSpot.name,
+        map: mapInstance
+      });
+      marker.addListener('click', function () {
+         OpenInfo(this);
+      });
+      // CurrentVisibleSpotMarkerId.insert({_id:nearSpot._id});
+      tempVisibleMarker[nearSpot._id] = marker;
+    }
+    else{
+      existedMarker.setLabel((i+1).toString());
+      if(existedMarker.map != mapInstance) existedMarker.setMap(mapInstance);
+      tempVisibleMarker[nearSpot._id] = existedMarker;
+    }
+  }
+  for(var j in currentVisibleSpotMarkers){
+    if(!tempVisibleMarker[j]){
+      currentVisibleSpotMarkers[j].setMap(null);
+      if(currentVisibleSpotMarkers[j].infowindow == OpenedInfoWindow) CloseInfo();
+      delete currentVisibleSpotMarkers[j];
+    }
+  }
+  if(currentVisibleSpotMarkers != tempVisibleMarker){
+    currentVisibleSpotMarkers = tempVisibleMarker;
+    ChangeInMarkerList.set(-1);
+  }
+  ChangeInMarkerList.set(Object.keys(currentVisibleSpotMarkers).length);
+};
+
 /*Direction Service Request*/
-beginDirection = function(spot, mode){
+BeginDirection = function(spot, mode){
   CloseInfo();
   resetDirectionsDisplay();
   Session.set('direction', null);
@@ -100,6 +198,8 @@ beginDirection = function(spot, mode){
 
   }
 };
+
+
 
 resetDirectionsDisplay = function(){
   DirectionsDisplayDrive.setMap(null);

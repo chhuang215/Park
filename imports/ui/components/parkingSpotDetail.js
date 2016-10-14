@@ -52,10 +52,10 @@ Template.parkingSpotDetail.helpers({
 Template.parkingSpotDetail.events({
   'click .js-directionToSpot'(){
     const spot = ParkingSpot.findOne({_id: this.id});
-    beginDirection(spot , DRIVE_ONLY);
+    BeginDirection(spot , DRIVE_ONLY);
   },
   'click .js-directionToSpotAndWalk'(){
     const spot = ParkingSpot.findOne({_id: this.id});
-    beginDirection(spot,  DRIVE_AND_WALK);
+    BeginDirection(spot,  DRIVE_AND_WALK);
   }
 });
