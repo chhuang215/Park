@@ -13,6 +13,7 @@ import './parkingSpotList.js';
 import './parkingSpotDetail.js';
 import './distanceProgress.js';
 import './parkingSpotInfoWindow.html';
+import "./searchedMarkerInfoWindow.html";
 
 const DEFAULT_RADIUS = 250;
 const DEFAULT_ZOOM = 14;
@@ -23,16 +24,9 @@ var ChangeInMarkerList = new ReactiveVar(0);
 var radiusCircle = null;
 
 var currentVisibleSpotMarkers = {};
+var searchedMarkers = [];
 
-//radiusCircle = null;
-
-//var MarkerToSearchNearby = new ReactiveVar(null);
-var mouseup = false;
-var drag = false;
-
-//var ChangeInMarkerList = new ReactiveVar(0);
-
-
+var mouseup,drag = false;
 var mapZoom, mapCenter = null;
 
 Template.parkMap.helpers({
@@ -150,6 +144,66 @@ Template.parkMap.onCreated(function (){
     });
 
     //-----------FINISH Initialize map's listener--------------
+
+    //----INITIALIZE Create the search box and link it to the UI element.---
+    var input = document.getElementsByClassName('tbSearch')[0];
+
+    var searchBox = new google.maps.places.SearchBox(input);
+    mapInstance.addListener('bounds_changed', function() {
+      searchBox.setBounds(mapInstance.getBounds());
+    });
+    searchBox.addListener('places_changed', function() {
+      var places = searchBox.getPlaces();
+      //console.log(places);
+      if (places.length === 0) {
+        return;
+      }
+      let bounds = new google.maps.LatLngBounds();
+      clearSearchResults();
+      places.forEach(function(place) {
+        //console.log(place.geometry);
+        if (!place.geometry) {
+          //console.log("Returned place contains no geometry");
+          return;
+        }
+
+        let contentInfo = Blaze.toHTMLWithData(Template.searchedMarkerInfoWindow, place);
+
+        let locationInfoWindow = new google.maps.InfoWindow({
+          content: contentInfo,
+          disableAutoPan: true
+        });
+        locationInfoWindow.addListener('closeclick', function() {
+          CloseInfo();
+        });
+        let m = new google.maps.Marker({
+          map: mapInstance,
+          icon: {
+            url: place.icon,
+            size: new google.maps.Size(22, 22),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(0, 11),
+            scaledSize: new google.maps.Size(22, 22)
+          },
+          infowindow: locationInfoWindow,
+          title: place.name,
+          position: place.geometry.location
+        });
+        m.addListener('click', function(){
+          OpenInfo(this);
+        });
+
+        searchedMarkers.push(m);
+        if (place.geometry.viewport) {
+           // Only geocodes have viewport.
+           bounds.union(place.geometry.viewport);
+         } else {
+           bounds.extend(place.geometry.location);
+         }
+      });
+      mapInstance.fitBounds(bounds);
+    });
+    //----FINSHED Create the search box and link it to the UI element.---
 
     //Initialize display of current location and location to search spots near by
     radiusCircle = createCircleRadius(map.instance, DEFAULT_RADIUS);
@@ -385,4 +439,11 @@ function setNewDestination(latLng){
   }
 
   MarkerToSearchNearby.set(currentDestinationMarker);
+}
+
+function clearSearchResults(){
+  _.each(searchedMarkers, function(marker){
+    marker.setMap(null);
+  });
+  searchedMarkers = [];
 }
