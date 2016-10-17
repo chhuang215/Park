@@ -6,7 +6,7 @@ import { Weather } from 'meteor/selaias:meteor-simpleweather';
 import './mainPage.html';
 import '../components/menuBar.js';
 import '../components/parkMap.js';
-import '../components/overlayControl.js';
+
 // Template.mainPage.events({
 
 // });

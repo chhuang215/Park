@@ -14,8 +14,12 @@
   text-align: center;
   display: table;
   line-height: 0;
-}
 
+}
+#weather i:before{
+  // FORTESTING border:2px solid black;
+
+}
 #weather:hover{
    background-color:#FF0000;
 }

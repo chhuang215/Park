@@ -60,14 +60,13 @@ Template.parkingSpotListItem.events({
 
     let map = GoogleMaps.maps.parkMap;
     let marker = this;
-    map.instance.panTo(marker.getPosition());
+    CenterTo(marker.getPosition());
+
+    map.instance.panBy(0,-100);
     OpenInfo(marker);
   }
 });
 
 Template.parkingSpotList.onRendered(function(){
-  this.autorun(function(){
 
-
-  });
 });

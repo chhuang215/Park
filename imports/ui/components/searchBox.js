@@ -20,10 +20,6 @@ Template.searchBox.events({
     $(".js-cancelSearch").toggle();
   },
   "click .btnSearchOpened"(event){
-    // var e = jQuery.Event("keypress");
-    // e.which = 13; //choose the one you want
-    // e.keyCode = 13;
-    // $(".tbSearch").trigger(e);
     google.maps.event.trigger( $(".tbSearch")[0], 'focus');
     google.maps.event.trigger( $(".tbSearch")[0], 'keydown', {keyCode:13});
   },

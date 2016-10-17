@@ -2,7 +2,6 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { GoogleMaps } from 'meteor/dburles:google-maps';
-import { Weather } from 'meteor/selaias:meteor-simpleweather';
 import { Session } from 'meteor/session';
 import {Blaze} from 'meteor/blaze';
 import { ParkingSpot } from '/imports/api/ParkingSpot/ParkingSpot.js';
@@ -11,6 +10,7 @@ import './parkMapGlobalFunctions.js';
 import './parkMap.html';
 import './parkingSpotList.js';
 import './parkingSpotDetail.js';
+import './overlayControl.js';
 import './distanceProgress.js';
 import './parkingSpotInfoWindow.html';
 import "./searchedMarkerInfoWindow.html";
@@ -81,6 +81,7 @@ Template.parkMap.events({
 
     let marker = SearchedMarkers[id];
     setNewDestination(marker.position);
+    CloseInfo();
   }
 });
 
@@ -163,7 +164,7 @@ Template.parkMap.onCreated(function (){
       let bounds = new google.maps.LatLngBounds();
       ClearSearchResults();
       places.forEach(function(place, i) {
-
+        let id = i.toString();
         if (!place.geometry) {
           //console.log("Returned place contains no geometry");
           return;
@@ -179,7 +180,7 @@ Template.parkMap.onCreated(function (){
           CloseInfo();
         });
         let m = new google.maps.Marker({
-          id: i.toString(),
+          id: id,
           map: mapInstance,
           icon: {
             url: place.icon,
@@ -196,7 +197,7 @@ Template.parkMap.onCreated(function (){
           OpenInfo(this);
         });
 
-        SearchedMarkers[i.toString()] = m;
+        SearchedMarkers[id] = m;
         if (place.geometry.viewport) {
            // Only geocodes have viewport.
            bounds.union(place.geometry.viewport);
@@ -325,7 +326,6 @@ function FindNearSpots(){
 
   // Clear visible markers if not at nearby
   if(nearSpots.length === 0){
-  //  CurrentVisibleSpotMarkerId.remove({});
     for(let i in currentVisibleSpotMarkers){
       currentVisibleSpotMarkers[i].setMap(null);
     }
@@ -441,6 +441,12 @@ function setNewDestination(latLng){
       MarkerToSearchNearby.set(currentDestinationMarker);
     });
   }
+  let bounds = new google.maps.LatLngBounds();
 
+  bounds.extend(currentDestinationMarker.getPosition());
+  bounds.extend(currentLocationMarker.getPosition());
+
+  map.instance.fitBounds(bounds);
+  map.instance.setZoom(map.instance.getZoom()-1);
   MarkerToSearchNearby.set(currentDestinationMarker);
 }

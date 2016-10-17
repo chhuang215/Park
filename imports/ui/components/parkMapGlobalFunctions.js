@@ -107,8 +107,6 @@ BeginDirection = function(spot, mode){
   }
 };
 
-
-
 resetDirectionsDisplay = function(){
   DirectionsDisplayDrive.setMap(null);
   DirectionsDisplayWalk.setMap(null);
@@ -183,4 +181,10 @@ ClearSearchResults = function(){
     marker.setMap(null);
   });
   SearchedMarkers = {};
+};
+
+CenterTo = function(position){
+  if(GoogleMaps.maps.parkMap){
+    GoogleMaps.maps.parkMap.instance.panTo(position);
+  }
 };
