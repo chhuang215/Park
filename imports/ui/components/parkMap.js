@@ -24,7 +24,7 @@ var ChangeInMarkerList = new ReactiveVar(0);
 var radiusCircle = null;
 
 var currentVisibleSpotMarkers = {};
-var searchedMarkers = [];
+
 
 var mouseup,drag = false;
 var mapZoom, mapCenter = null;
@@ -76,9 +76,11 @@ Template.parkMap.events({
   //   let spot = ParkingSpot.findOne({_id: event.currentTarget.id});
   //   BeginDirection(spot,  DRIVE_AND_WALK);
   // }
-  'click .js-setAsDestination'(event){
-    //FindNearSpots();
-    console.log(this.name);
+  'click .js-setAsDestination'(event, instance){
+    let id = event.currentTarget.id;
+
+    let marker = SearchedMarkers[id];
+    setNewDestination(marker.position);
   }
 });
 
@@ -154,20 +156,20 @@ Template.parkMap.onCreated(function (){
     });
     searchBox.addListener('places_changed', function() {
       var places = searchBox.getPlaces();
-      //console.log(places);
+
       if (places.length === 0) {
         return;
       }
       let bounds = new google.maps.LatLngBounds();
-      clearSearchResults();
-      places.forEach(function(place) {
-        //console.log(place.geometry);
+      ClearSearchResults();
+      places.forEach(function(place, i) {
+
         if (!place.geometry) {
           //console.log("Returned place contains no geometry");
           return;
         }
 
-        let contentInfo = Blaze.toHTMLWithData(Template.searchedMarkerInfoWindow, place);
+        let contentInfo = Blaze.toHTMLWithData(Template.searchedMarkerInfoWindow, {id:i.toString(), place:place});
 
         let locationInfoWindow = new google.maps.InfoWindow({
           content: contentInfo,
@@ -177,6 +179,7 @@ Template.parkMap.onCreated(function (){
           CloseInfo();
         });
         let m = new google.maps.Marker({
+          id: i.toString(),
           map: mapInstance,
           icon: {
             url: place.icon,
@@ -193,7 +196,7 @@ Template.parkMap.onCreated(function (){
           OpenInfo(this);
         });
 
-        searchedMarkers.push(m);
+        SearchedMarkers[i.toString()] = m;
         if (place.geometry.viewport) {
            // Only geocodes have viewport.
            bounds.union(place.geometry.viewport);
@@ -201,6 +204,7 @@ Template.parkMap.onCreated(function (){
            bounds.extend(place.geometry.location);
          }
       });
+
       mapInstance.fitBounds(bounds);
     });
     //----FINSHED Create the search box and link it to the UI element.---
@@ -208,7 +212,7 @@ Template.parkMap.onCreated(function (){
     //Initialize display of current location and location to search spots near by
     radiusCircle = createCircleRadius(map.instance, DEFAULT_RADIUS);
     // Create and move the marker when latLng changes.
-    console.log(GoogleMaps.maps);
+    //console.log(GoogleMaps.maps);
 
     self.autorun(function() {
 
@@ -439,11 +443,4 @@ function setNewDestination(latLng){
   }
 
   MarkerToSearchNearby.set(currentDestinationMarker);
-}
-
-function clearSearchResults(){
-  _.each(searchedMarkers, function(marker){
-    marker.setMap(null);
-  });
-  searchedMarkers = [];
 }

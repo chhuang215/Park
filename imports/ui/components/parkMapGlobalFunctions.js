@@ -13,6 +13,8 @@ currentDestinationMarker = null;
 
 OpenedInfoWindow = null;
 
+SearchedMarkers = {};
+
 OpenInfo = function (marker){
   if(marker.infowindow != OpenedInfoWindow){
     CloseInfo();
@@ -174,3 +176,11 @@ function walkToDestination(fromLocation, toLocation){
     }
   });
 }
+
+// Clear searched markers on the map
+ClearSearchResults = function(){
+  _.each(SearchedMarkers, function(marker){
+    marker.setMap(null);
+  });
+  SearchedMarkers = {};
+};

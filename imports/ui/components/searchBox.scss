@@ -3,65 +3,64 @@ $searchbox-background: rgba(255, 255, 255, 0.5);
 $searchbox-font-color: white;
 
 #searchDiv{
-  padding: 6px 0px;
+  padding: 6px 1em;
   position: absolute;
-  left: 1em;
+  //left: 1em;
   top: .5em;
+  display:flex;
+  align-items:center;
 
+  .searchBarWrapper{
+    padding-right: 0;
+  }
+  .searchBoxWrapper{
+    background: $searchbox-background ;
+    border-radius: $searchbox-border-radius;
+    border: 1px solid #ccc;
+
+  }
+
+  .closed{
+    width:0 !important;
+    background:none !important;
+    border: 0 !important;
+    padding-left: .2em;
+  }
+
+  .row{
+    margin:0;
+    display:flex;
+    align-items:center;
+    width:100%;
+  }
+  .inputWrapper{
+    padding:0;
+    .tbSearch{
+      background: none;
+      border: 0px;
+      border-radius: $searchbox-border-radius;
+    	box-shadow:0 0 0;
+    }
+  }
+  .searchButtonWrapper{
+
+    // -o-transform: translateY(-50%);
+  }
+  .js-cancelSearch{
+    display:none;
+    color:rgb(228, 30, 30);
+    padding-left: 2px;
+    padding-right: 2px;
+    font-size: 20px;
+    float: left;
+    &:hover {
+      color:rgba(228, 30, 30, 0.84);
+    }
+  }
 }
 
-#searchDiv button{
-  border:0;
-  background:transparent;
-  font-size:$font-size-control;
-  padding-top: 0px;
-  padding-bottom: 0px;
-}
 
-#searchDiv .form-group .input-group{
-  width:89%;
-  float:left;
-  // width:auto;
-}
-
-#searchDiv .input-group-addon{
-  background: $searchbox-background !important;
-  padding-top: 0px;
-  padding-bottom: 0px;
-  border-top-right-radius: $searchbox-border-radius;
-  border-bottom-right-radius: $searchbox-border-radius;
-}
-
-
-
-#searchDiv .tbSearch{
-  background: $searchbox-background;
-  border-right:0;
-	box-shadow:0 0 0;
-	border-color:#ccc;
-  border-top-left-radius: $searchbox-border-radius;
-  border-bottom-left-radius: $searchbox-border-radius;
-
-  // width:auto;
-}
-
-#searchDiv .js-cancelSearch{
-  color:red;
-  padding-left: 2px;
-  padding-right: 2px;
-  font-size: 23px;
-  float: left;
-  // width:auto;
-}
-
-
-.btnSearchClose{
-  position: absolute;
-  left: 1em;
-  top: .5em;
-}
-
+// #searchDiv
 .btnSearch{
   @extend .btn-transparent;
-
 }

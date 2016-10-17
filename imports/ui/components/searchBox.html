@@ -1,23 +1,23 @@
 <template name="searchBox">
-  <div id="searchDiv" class="hidden">
-    <div class="searchInputGroup form-group col-sm-6 col-xs-12 ">
-
-        <div class="input-group">
-          <input type="text" class="form-control tbSearch " value="Search" onfocus="this.value=''" placeholder="Search">
-          <span class="input-group-addon">
-            <button class="btn btn-default" type="button" style="padding: 2px 3px">
-              <span class="glyphicon glyphicon-search"></span>
+  <div id="searchDiv" class="col-sm-6 col-xs-12">
+    <div class="searchBarWrapper col-xs-11 closed">
+      <div class="searchBoxWrapper closed">
+        <div class="row">
+          <div class="inputWrapper col-xs-11 closed">
+            <input type="text" class="form-control tbSearch" placeholder="Search">
+          </div>
+          <div class="searchButtonWrapper">
+            <button class="btn btnSearch btnSearchClosed" type="button" name="btnSearch">
+              <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
             </button>
-          </span>
-        </div><!-- /input-group -->
+          </div>
+        </div>
 
+      </div>
+    </div>
 
-      <a href="" class="js-cancelSearch "><span class="glyphicon glyphicon-remove"></span></a>
-
-    </div>  <!-- </div> -->
+    <a href="" class="js-cancelSearch"><span class="glyphicon glyphicon-remove"></span></a>
 
   </div>
-  <button class="btn btnSearch btnSearchClose" type="button" name="btnSearch">
-    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-  </button>
+
 </template>

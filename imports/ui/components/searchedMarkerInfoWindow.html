@@ -1,7 +1,7 @@
 <template name="searchedMarkerInfoWindow">
   <div id="{{id}}" style="min-width:200px">
-    <p> {{this.name}} </p>
+    <p> {{place.name}} </p>
     <br />
-    <button class="btn btn-sm js-setAsDestination">Set as Destination</button>
+    <button class="btn btn-sm js-setAsDestination" id="{{id}}">Set as Destination</button>
   </div>
 </template>

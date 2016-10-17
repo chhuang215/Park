@@ -6,32 +6,30 @@ import "./searchBox.html";
 
 import "./parkMapGlobalFunctions.js";
 
-
 Template.searchBox.events({
   "click .js-cancelSearch"(event){
-    $(".show").addClass("hidden").removeClass("show");
-
-    $('#searchDiv .searchInputGroup').css('display','none');
-
-    $('.btnSearch').toggle();
+    $(".opened").addClass("closed").removeClass("opened");
+    $(".btnSearchOpened").addClass("btnSearchClosed").removeClass("btnSearchOpened");
+    $(".js-cancelSearch").toggle();
+    ClearSearchResults();
+    $("input").val("");
   },
-  "click .btnSearch"(event){
-    $(".hidden").addClass("show").removeClass("hidden");
-    $('#searchDiv .searchInputGroup').css('display','inline');
-
-    $('.btnSearch').toggle();
+  "click .btnSearchClosed"(event){
+    $(".closed").addClass("opened").removeClass("closed");
+    $(".btnSearchClosed").addClass("btnSearchOpened").removeClass("btnSearchClosed");
+    $(".js-cancelSearch").toggle();
+  },
+  "click .btnSearchOpened"(event){
+    // var e = jQuery.Event("keypress");
+    // e.which = 13; //choose the one you want
+    // e.keyCode = 13;
+    // $(".tbSearch").trigger(e);
+    google.maps.event.trigger( $(".tbSearch")[0], 'focus');
+    google.maps.event.trigger( $(".tbSearch")[0], 'keydown', {keyCode:13});
   },
 });
 Template.searchBox.onCreated(function(){
 });
 Template.searchBox.onRendered(function(){
 
-  // this.autorun(function(){
-  //
-  //   if (Session.get("ParkMapInitialized")) {
-  //     let mapInstance = GoogleMaps.maps.parkMap.instance;
-  //
-  //
-  //   }
-  // });
 });
