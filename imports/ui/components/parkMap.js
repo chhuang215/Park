@@ -1,4 +1,3 @@
-/*jshint esversion: 6*/ /* jshint loopfunc:true */
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { GoogleMaps } from 'meteor/dburles:google-maps';
@@ -14,7 +13,6 @@ import './overlayControl.js';
 import './distanceProgress.js';
 import './parkingSpotInfoWindow.html';
 import "./searchedMarkerInfoWindow.html";
-
 const DEFAULT_RADIUS = 250;
 const DEFAULT_ZOOM = 14;
 const DEFAULT_CITY_ZOOM = 8;
@@ -24,7 +22,6 @@ var ChangeInMarkerList = new ReactiveVar(0);
 var radiusCircle = null;
 
 var currentVisibleSpotMarkers = {};
-
 
 var mouseup,drag = false;
 var mapZoom, mapCenter = null;
