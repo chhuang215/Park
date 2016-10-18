@@ -17,7 +17,7 @@ Template.parkingSpotDetail.helpers({
         return s;
       }
     }
-
+  
     return{};
   },
   getName(){
@@ -25,7 +25,7 @@ Template.parkingSpotDetail.helpers({
     if(!p) return "";
     return p.name;
   },
-  rating(){
+  getRatingStars(){
     let p = ParkingSpot.findOne({_id:this.id});
     if(!p) return;
     let rating = p.rating;

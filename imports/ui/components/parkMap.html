@@ -1,7 +1,8 @@
 <!-- map -->
 <template name="parkMap">
-  <div class="map-container">
 
+  <div class="map-container">
+    {{> menuBar}}
     {{> googleMap name="parkMap" options=mapOptions}}
     {{>distanceProgress}}
     {{> overlayControl}}
@@ -11,6 +12,11 @@
     <!-- ParkingSpots: array of parking spots -->
     {{> parkingSpotList }}
     {{> parkingSpotDetail}}
+    <!-- {{#each parkingSpots}}
+
+
+    {{/each}} -->
+
   {{/with}}
 
 </template>

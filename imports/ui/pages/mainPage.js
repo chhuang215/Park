@@ -4,8 +4,8 @@ import { GoogleMaps } from 'meteor/dburles:google-maps';
 import {Geolocation} from 'meteor/mdg:geolocation';
 import { Weather } from 'meteor/selaias:meteor-simpleweather';
 import './mainPage.html';
-import '../components/menuBar.js';
-import '../components/parkMap.js';
+
+import '../components/parkMap';
 
 // Template.mainPage.events({
 

@@ -8,6 +8,7 @@ import { ParkingSpot } from '/imports/api/ParkingSpot/ParkingSpot.js';
 import './parkMapGlobalFunctions.js';
 import './parkMap.html';
 import './parkingSpotList.js';
+import './menuBar.js';
 import './parkingSpotDetail.js';
 import './overlayControl.js';
 import './distanceProgress.js';
@@ -54,6 +55,7 @@ Template.parkMap.helpers({
     MarkerToSearchNearby.get();
     ChangeInMarkerList.get();
     //console.log('serical');
+    if(!currentVisibleSpotMarkers) return null;
     let arryLst = [];
 
     for (var key in currentVisibleSpotMarkers) arryLst.push(currentVisibleSpotMarkers[key]);
