@@ -7,7 +7,7 @@ App.info({
   //website: 'http://example.com'
 });
 App.icons({
-  'android_mdpi': '/android_mdpi.png',
+  'android_mdpi': './android_mdpi.png',
   // ... more screen sizes and platforms ...
 });
 App.accessRule('*.google.com/*');
